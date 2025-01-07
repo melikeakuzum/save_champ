@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ana Sayfa - Harcama Yarışması</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .dashboard-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .menu-item {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #666;
+        }
+        .menu-item:hover, .menu-item.active {
+            background: #764ba2;
+            color: white;
+        }
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        .loading i {
+            font-size: 2rem;
+            color: #764ba2;
+        }
+        .user-header {
+            padding: 0.5rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-name {
+            margin: 0;
+            font-size: 1rem;
+            color: #666;
+        }
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .search-box input {
+            padding-left: 2.5rem;
+        }
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        .btn-primary {
+            background: #764ba2;
+            border-color: #764ba2;
+        }
+        .btn-primary:hover {
+            background: #667eea;
+            border-color: #667eea;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            border-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+            border-color: #5a6268;
+        }
+        .btn-danger {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+            border-color: #bd2130;
+        }
+        .friend-tab {
+            animation: fadeIn 0.3s;
+        }
+        .list-group-item {
+            transition: all 0.3s;
+        }
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+        .btn-group .btn {
+            transition: all 0.3s;
+        }
+        .badge {
+            transition: all 0.3s;
+        }
+        .search-input {
+            border-radius: 20px;
+            padding-left: 40px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        .member-card {
+            position: relative;
+            transition: all 0.3s;
+        }
+        .member-card:hover {
+            background-color: #f8f9fa;
+        }
+        .member-actions {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .admin-badge {
+            position: relative;
+            padding-right: 25px;
+            cursor: pointer;
+        }
+        .admin-badge .remove-admin {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .admin-badge:hover .remove-admin {
+            opacity: 1;
+        }
+        .friend-select-card {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .friend-select-card.selected {
+            border-color: #764ba2;
+            background-color: #f8f9fa;
+        }
+        .friend-select-card .check-icon {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            color: #764ba2;
+            display: none;
+        }
+        .friend-select-card.selected .check-icon {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="container">
+            <div class="row">
+                <!-- Header -->
+                <div class="col-12 mb-4">
+                    <div class="user-header">
+                        <div class="user-info">
+                            <img src="https://via.placeholder.com/40" alt="Profil" class="user-avatar" id="userAvatar">
+                            <p class="user-name">Hoş geldin, <span id="userName"></span>!</p>
+                            <div class="ms-auto">
+                                <div class="position-relative d-inline-block">
+                                    <button class="btn btn-link text-dark" onclick="showNotifications()">
+                                        <i class="fas fa-bell"></i>
+                                        <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                                            0
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar Menu -->
+                <div class="col-md-3 mb-4">
+                    <div class="sidebar">
+                        <div class="menu-item active" data-page="overview">
+                            <i class="fas fa-home"></i> Genel Bakış
+                        </div>
+                        <div class="menu-item" data-page="groups">
+                            <i class="fas fa-users"></i> Gruplarım
+                        </div>
+                        <div class="menu-item" data-page="friends">
+                            <i class="fas fa-user-friends"></i> Arkadaşlarım
+                        </div>
+                        <div class="menu-item" data-page="expenses">
+                            <i class="fas fa-receipt"></i> Harcamalarım
+                        </div>
+                        <div class="menu-item" data-page="competitions">
+                            <i class="fas fa-trophy"></i> Yarışmalar
+                        </div>
+                        <div class="menu-item" data-page="settings">
+                            <i class="fas fa-cog"></i> Ayarlar
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="col-md-9">
+                    <div class="content-card">
+                        <div id="mainContent" class="fade-in">
+                            <!-- İçerik buraya dinamik olarak yüklenecek -->
+                        </div>
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Şifre Değiştirme Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Şifre Değiştir</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="passwordForm">
+                        <div class="mb-3">
+                            <label class="form-label">Mevcut Şifre</label>
+                            <input type="password" class="form-control" id="oldPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Yeni Şifre</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Yeni Şifre (Tekrar)</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="updatePassword()">Güncelle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profil Resmi Modal -->
+    <div class="modal fade" id="profileImageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Profil Resmi Değiştir</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="imageForm">
+                        <div class="mb-3">
+                            <label class="form-label">Yeni Profil Resmi</label>
+                            <input type="file" class="form-control" id="profileImage" accept="image/*" required>
+                        </div>
+                        <div class="text-center mt-3">
+                            <img id="imagePreview" style="max-width: 200px; display: none;">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="updateProfileImage()">Güncelle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bildirimler Modal -->
+    <div class="modal fade" id="notificationsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Bildirimler</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group" id="notificationsList">
+                        <!-- Bildirimler buraya dinamik olarak eklenecek -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yeni Grup Oluştur Modal -->
+    <div class="modal fade" id="createGroupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Grup Oluştur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="groupForm">
+                        <div class="mb-3">
+                            <label class="form-label">Grup Adı</label>
+                            <input type="text" class="form-control" id="groupName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Açıklama</label>
+                            <textarea class="form-control" id="groupDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="createGroup()">Oluştur</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grup Yönetimi Modal -->
+    <div class="modal fade" id="manageGroupModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Grup Yönetimi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#members">Üyeler</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#addMembers">Üye Ekle</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="members">
+                            <div class="list-group" id="membersList"></div>
+                        </div>
+                        <div class="tab-pane fade" id="addMembers">
+                            <div class="mb-3">
+                                <div class="row" id="availableFriendsList">
+                                    <!-- Arkadaşlar buraya eklenecek -->
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-primary w-100" onclick="addSelectedMembers()">
+                                        Seçili Arkadaşları Ekle
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ana Sayfa - Harcama Yarışması</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .dashboard-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .menu-item {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #666;
+        }
+        .menu-item:hover, .menu-item.active {
+            background: #764ba2;
+            color: white;
+        }
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        .loading i {
+            font-size: 2rem;
+            color: #764ba2;
+        }
+        .user-header {
+            padding: 0.5rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-name {
+            margin: 0;
+            font-size: 1rem;
+            color: #666;
+        }
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .search-box input {
+            padding-left: 2.5rem;
+        }
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        .btn-primary {
+            background: #764ba2;
+            border-color: #764ba2;
+        }
+        .btn-primary:hover {
+            background: #667eea;
+            border-color: #667eea;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            border-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+            border-color: #5a6268;
+        }
+        .btn-danger {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+            border-color: #bd2130;
+        }
+        .friend-tab {
+            animation: fadeIn 0.3s;
+        }
+        .list-group-item {
+            transition: all 0.3s;
+        }
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+        .btn-group .btn {
+            transition: all 0.3s;
+        }
+        .badge {
+            transition: all 0.3s;
+        }
+        .search-input {
+            border-radius: 20px;
+            padding-left: 40px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        .member-card {
+            position: relative;
+            transition: all 0.3s;
+        }
+        .member-card:hover {
+            background-color: #f8f9fa;
+        }
+        .member-actions {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .admin-badge {
+            position: relative;
+            padding-right: 25px;
+            cursor: pointer;
+        }
+        .admin-badge .remove-admin {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .admin-badge:hover .remove-admin {
+            opacity: 1;
+        }
+        .friend-select-card {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .friend-select-card.selected {
+            border-color: #764ba2;
+            background-color: #f8f9fa;
+        }
+        .friend-select-card .check-icon {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            color: #764ba2;
+            display: none;
+        }
+        .friend-select-card.selected .check-icon {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="container">
+            <div class="row">
+                <!-- Header -->
+                <div class="col-12 mb-4">
+                    <div class="user-header">
+                        <div class="user-info">
+                            <img src="https://via.placeholder.com/40" alt="Profil" class="user-avatar" id="userAvatar">
+                            <p class="user-name">Hoş geldin, <span id="userName"></span>!</p>
+                            <div class="ms-auto">
+                                <div class="position-relative d-inline-block">
+                                    <button class="btn btn-link text-dark" onclick="showNotifications()">
+                                        <i class="fas fa-bell"></i>
+                                        <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                                            0
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar Menu -->
+                <div class="col-md-3 mb-4">
+                    <div class="sidebar">
+                        <div class="menu-item active" data-page="overview">
+                            <i class="fas fa-home"></i> Genel Bakış
+                        </div>
+                        <div class="menu-item" data-page="groups">
+                            <i class="fas fa-users"></i> Gruplarım
+                        </div>
+                        <div class="menu-item" data-page="friends">
+                            <i class="fas fa-user-friends"></i> Arkadaşlarım
+                        </div>
+                        <div class="menu-item" data-page="expenses">
+                            <i class="fas fa-receipt"></i> Harcamalarım
+                        </div>
+                        <div class="menu-item" data-page="competitions">
+                            <i class="fas fa-trophy"></i> Yarışmalar
+                        </div>
+                        <div class="menu-item" data-page="settings">
+                            <i class="fas fa-cog"></i> Ayarlar
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="col-md-9">
+                    <div class="content-card">
+                        <div id="mainContent" class="fade-in">
+                            <!-- İçerik buraya dinamik olarak yüklenecek -->
+                        </div>
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Şifre Değiştirme Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Şifre Değiştir</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="passwordForm">
+                        <div class="mb-3">
+                            <label class="form-label">Mevcut Şifre</label>
+                            <input type="password" class="form-control" id="oldPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Yeni Şifre</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Yeni Şifre (Tekrar)</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="updatePassword()">Güncelle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profil Resmi Modal -->
+    <div class="modal fade" id="profileImageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Profil Resmi Değiştir</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="imageForm">
+                        <div class="mb-3">
+                            <label class="form-label">Yeni Profil Resmi</label>
+                            <input type="file" class="form-control" id="profileImage" accept="image/*" required>
+                        </div>
+                        <div class="text-center mt-3">
+                            <img id="imagePreview" style="max-width: 200px; display: none;">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="updateProfileImage()">Güncelle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bildirimler Modal -->
+    <div class="modal fade" id="notificationsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Bildirimler</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group" id="notificationsList">
+                        <!-- Bildirimler buraya dinamik olarak eklenecek -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yeni Grup Oluştur Modal -->
+    <div class="modal fade" id="createGroupModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Grup Oluştur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="groupForm">
+                        <div class="mb-3">
+                            <label class="form-label">Grup Adı</label>
+                            <input type="text" class="form-control" id="groupName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Açıklama</label>
+                            <textarea class="form-control" id="groupDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="createGroup()">Oluştur</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grup Yönetimi Modal -->
+    <div class="modal fade" id="manageGroupModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Grup Yönetimi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#members">Üyeler</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#addMembers">Üye Ekle</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="members">
+                            <div class="list-group" id="membersList"></div>
+                        </div>
+                        <div class="tab-pane fade" id="addMembers">
+                            <div class="mb-3">
+                                <div class="row" id="availableFriendsList">
+                                    <!-- Arkadaşlar buraya eklenecek -->
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-primary w-100" onclick="addSelectedMembers()">
+                                        Seçili Arkadaşları Ekle
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global değişkenler
+        let passwordModal;
+        let profileImageModal;
+        let notificationCheckInterval;
+        let createGroupModal;
+        let manageGroupModal;
+        let currentGroupId;
+        
+        // Fonksiyonları global scope'ta tanımlayın
+        function showSettingsModal(type) {
+            if (type === 'profile') {
+                profileImageModal.show();
+            } else if (type === 'password') {
+                passwordModal.show();
+            }
+        }
+
+        function updatePassword() {
+            const newPassword = $('#newPassword').val();
+            const confirmPassword = $('#confirmPassword').val();
+            
+            if (newPassword !== confirmPassword) {
+                alert('Yeni şifreler eşleşmiyor!');
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            $.ajax({
+                url: '/api/auth/update-password',
+                type: 'POST',
+                data: {
+                    userId: user.id,
+                    oldPassword: $('#oldPassword').val(),
+                    newPassword: newPassword
+                },
+                success: function(response) {
+                    alert('Şifre başarıyla güncellendi!');
+                    passwordModal.hide();
+                    $('#passwordForm')[0].reset();
+                },
+                error: function(xhr) {
+                    alert('Hata: ' + xhr.responseText);
+                }
+            });
+        }
+
+        function updateProfileImage() {
+            const file = $('#profileImage')[0].files[0];
+            if (!file) {
+                alert('Lütfen bir resim seçin!');
+                return;
+            }
+
+            // Dosya boyutu kontrolü (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Dosya boyutu çok büyük! Maksimum 5MB olmalıdır.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Resmi yeniden boyutlandır
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Maksimum boyutları belirle
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+
+                    // En-boy oranını koru
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Sıkıştırılmış ve boyutlandırılmış resmi base64 formatına çevir
+                    const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    
+                    $.ajax({
+                        url: '/api/auth/update-profile-image',
+                        type: 'POST',
+                        data: {
+                            userId: user.id,
+                            base64Image: compressedImage
+                        },
+                        success: function(response) {
+                            localStorage.setItem('user', JSON.stringify(response));
+                            $('#userAvatar').attr('src', response.profileImage);
+                            $('#settingsProfileImage').attr('src', response.profileImage);
+                            alert('Profil resmi başarıyla güncellendi!');
+                            profileImageModal.hide();
+                            $('#imageForm')[0].reset();
+                            $('#imagePreview').hide();
+                        },
+                        error: function(xhr) {
+                            alert('Hata: ' + xhr.responseText);
+                        }
+                    });
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showFriendTab(tab) {
+            $('.friend-tab').hide();
+            $('.btn-group .btn').removeClass('active');
+            
+            if (tab === 'list') {
+                $('#friendList').show();
+                loadFriends();
+            } 
+            else if (tab === 'requests') {
+                $('#friendRequests').show();
+                loadFriendRequests();
+            }
+            else if (tab === 'search') {
+                $('#userSearch').show();
+            }
+            
+            $(`button[onclick="showFriendTab('${tab}')"]`).addClass('active');
+        }
+
+        function loadFriends() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            $.get(`/api/friendship/friends/${user.id}`, function(response) {
+                const friendsList = $('#friendsList');
+                friendsList.empty();
+                
+                response.forEach(friend => {
+                    friendsList.append(`
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <img src="${friend.profileImage || 'https://via.placeholder.com/40'}" 
+                                    class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                <div>
+                                    <h6 class="mb-0">${friend.firstName} ${friend.lastName}</h6>
+                                </div>
+                            </div>
+                            <button class="btn btn-danger btn-sm" onclick="removeFriend(${friend.id})">
+                                <i class="fas fa-user-times"></i>
+                            </button>
+                        </div>
+                    `);
+                });
+            });
+        }
+
+        function loadFriendRequests() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            $.get(`/api/friendship/requests/${user.id}`, function(response) {
+                const requestsList = $('#requestsList');
+                requestsList.empty();
+                
+                if (response.length > 0) {
+                    $('#requestCount').text(response.length).removeClass('d-none');
+                } else {
+                    $('#requestCount').addClass('d-none');
+                }
+                
+                response.forEach(request => {
+                    requestsList.append(`
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <img src="${request.senderImage || 'https://via.placeholder.com/40'}" 
+                                    class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                <div>
+                                    <h6 class="mb-0">${request.senderName}</h6>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn btn-success btn-sm me-2" onclick="respondToRequest(${request.id}, true)">
+                                    <i class="fas fa-check"></i> Kabul Et
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="respondToRequest(${request.id}, false)">
+                                    <i class="fas fa-times"></i> Reddet
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                });
+            });
+        }
+
+        let searchTimeout;
+        $('#searchInput').on('input', function() {
+            clearTimeout(searchTimeout);
+            const query = $(this).val().trim();
+            
+            if (query.length < 2) {
+                $('#searchResults').empty();
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                const user = JSON.parse(localStorage.getItem('user'));
+                
+                $.ajax({
+                    url: '/api/friendship/search',
+                    type: 'GET',
+                    data: {
+                        query: query,
+                        currentUserId: user.id
+                    },
+                    success: function(response) {
+                        const searchResults = $('#searchResults');
+                        searchResults.empty();
+                        
+                        if (response.length === 0) {
+                            searchResults.append(`
+                                <div class="list-group-item text-center text-muted">
+                                    Kullanıcı bulunamadı
+                                </div>
+                            `);
+                            return;
+                        }
+                        
+                        response.forEach(result => {
+                            let actionButton = '';
+                            
+                            switch(result.friendshipStatus) {
+                                case 'NONE':
+                                    actionButton = `
+                                        <div class="btn-group">
+                                            <button class="btn btn-primary btn-sm" onclick="sendFriendRequest(${result.id}, this)">
+                                                <i class="fas fa-user-plus"></i> Arkadaş Ekle
+                                            </button>
+                                        </div>`;
+                                    break;
+                                case 'PENDING_SENT':
+                                    actionButton = `
+                                        <div class="btn-group">
+                                            <button class="btn btn-secondary btn-sm" disabled>
+                                                <i class="fas fa-clock"></i> Beklemede
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="cancelFriendRequest(${result.id}, this)">
+                                                <i class="fas fa-times"></i> İptal
+                                            </button>
+                                        </div>`;
+                                    break;
+                                case 'ACCEPTED':
+                                    actionButton = `
+                                        <button class="btn btn-success btn-sm" disabled>
+                                            <i class="fas fa-check"></i> Arkadaşsınız
+                                        </button>`;
+                                    break;
+                            }
+                            
+                            searchResults.append(`
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="${result.profileImage || 'https://via.placeholder.com/40'}" 
+                                            class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                        <div>
+                                            <h6 class="mb-0">${result.firstName} ${result.lastName}</h6>
+                                        </div>
+                                    </div>
+                                    ${actionButton}
+                                </div>
+                            `);
+                        });
+                    },
+                    error: function(xhr) {
+                        alert('Hata: ' + xhr.responseText);
+                    }
+                });
+            }, 500);
+        });
+
+        function sendFriendRequest(receiverId) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            $.post('/api/friendship/send-request', {
+                senderId: user.id,
+                receiverId: receiverId
+            }, function(response) {
+                alert('Arkadaşlık isteği gönderildi!');
+                $('#searchInput').trigger('input'); // Arama sonuçlarını güncelle
+            }).fail(function(xhr) {
+                alert('Hata: ' + xhr.responseText);
+            });
+        }
+
+        function respondToRequest(friendshipId, accept) {
+            $.post('/api/friendship/respond', {
+                friendshipId: friendshipId,
+                accept: accept
+            }, function(response) {
+                // İlgili bildirimi hemen kaldır
+                $(`#notification-${friendshipId}`).fadeOut(300, function() {
+                    $(this).remove();
+                    // Eğer başka bildirim kalmadıysa "bildirim yok" mesajını göster
+                    if ($('#notificationsList').children().length === 0) {
+                        $('#notificationsList').append(`
+                            <div class="list-group-item text-center text-muted">
+                                Bildirim bulunmuyor
+                            </div>
+                        `);
+                    }
+                });
+                
+                // Bildirim sayacını güncelle
+                checkNotifications();
+                
+                if (accept) {
+                    loadFriends(); // Arkadaş listesini güncelle
+                }
+                
+                alert(response);
+            }).fail(function(xhr) {
+                alert('Hata: ' + xhr.responseText);
+            });
+        }
+
+        function removeFriend(friendId) {
+            if (confirm('Bu arkadaşı silmek istediğinize emin misiniz?')) {
+                // Arkadaşlık silme endpoint'i eklenecek
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+
+        // Pages object'i ekleyin (ready function'dan önce)
+        const pages = {
+            overview: {
+                title: 'Genel Bakış',
+                content: `
+                    <h2>Genel Bakış</h2>
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Aktif Yarışmalar</h5>
+                                    <h2>3</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Toplam Tasarruf</h5>
+                                    <h2>₺1,250</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Grup Sayısı</h5>
+                                    <h2>2</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            settings: {
+                title: 'Ayarlar',
+                content: `
+                    <h2>Ayarlar</h2>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-body text-center">
+                                    <img src="https://via.placeholder.com/150" id="settingsProfileImage" 
+                                        class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                                    <button class="btn btn-primary w-100" onclick="showSettingsModal('profile')">
+                                        Profil Resmini Değiştir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Kullanıcı Bilgileri</h5>
+                                    <form id="userInfoForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">Ad</label>
+                                            <input type="text" class="form-control" id="settingsFirstName">
+                                            <small class="text-muted">Mevcut: <span id="currentFirstName"></span></small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Soyad</label>
+                                            <input type="text" class="form-control" id="settingsLastName">
+                                            <small class="text-muted">Mevcut: <span id="currentLastName"></span></small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">E-posta</label>
+                                            <input type="email" class="form-control" id="settingsEmail" readonly>
+                                        </div>
+                                        <button type="button" class="btn btn-primary mb-2 w-100" onclick="updateUserInfo()">
+                                            <i class="fas fa-save"></i> Bilgileri Güncelle
+                                        </button>
+                                        <button type="button" class="btn btn-primary mb-2 w-100" onclick="showSettingsModal('password')">
+                                            <i class="fas fa-key"></i> Şifre Değiştir
+                                        </button>
+                                        <button type="button" class="btn btn-danger w-100" onclick="logout()">
+                                            <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            friends: {
+                title: 'Arkadaşlarım',
+                content: `
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="btn-group w-100">
+                                <button class="btn btn-primary active" onclick="showFriendTab('list')">
+                                    <i class="fas fa-users"></i> Arkadaş Listesi
+                                </button>
+                                <button class="btn btn-primary" onclick="showFriendTab('requests')">
+                                    <i class="fas fa-user-plus"></i> İstekler
+                                    <span id="requestCount" class="badge bg-danger d-none">0</span>
+                                </button>
+                                <button class="btn btn-primary" onclick="showFriendTab('search')">
+                                    <i class="fas fa-search"></i> Kullanıcı Ara
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <!-- Arkadaş Listesi -->
+                            <div id="friendList" class="friend-tab">
+                                <div class="list-group" id="friendsList"></div>
+                            </div>
+
+                            <!-- Arkadaşlık İstekleri -->
+                            <div id="friendRequests" class="friend-tab" style="display:none">
+                                <div class="list-group" id="requestsList"></div>
+                            </div>
+
+                            <!-- Kullanıcı Arama -->
+                            <div id="userSearch" class="friend-tab" style="display:none">
+                                <div class="mb-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="searchInput" 
+                                            placeholder="İsim veya soyisim ile ara..." autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="list-group" id="searchResults"></div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            groups: {
+                title: 'Gruplarım',
+                content: `
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <button class="btn btn-primary float-end" onclick="showCreateGroupModal()">
+                                <i class="fas fa-plus"></i> Yeni Grup Oluştur
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" id="groupsList">
+                        <!-- Gruplar buraya dinamik olarak eklenecek -->
+                    </div>
+                `
+            },
+            // Diğer sayfalar için benzer şekilde içerikler ekleyin
+        };
+
+        // loadPage fonksiyonunu ekleyin
+        function loadPage(pageName) {
+            const page = pages[pageName];
+            if (!page) return;
+
+            $('#mainContent').hide();
+            $('.loading').show();
+
+            setTimeout(() => {
+                $('#mainContent').html(page.content);
+                
+                // Sayfa yüklendikten sonra gerekli işlemleri yap
+                if (pageName === 'settings') {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    // Mevcut değerleri göster
+                    $('#currentFirstName').text(user.firstName);
+                    $('#currentLastName').text(user.lastName);
+                    // Input alanlarına mevcut değerleri yerleştir
+                    $('#settingsFirstName').val(user.firstName);
+                    $('#settingsLastName').val(user.lastName);
+                    $('#settingsEmail').val(user.email);
+                    if (user.profileImage) {
+                        $('#settingsProfileImage').attr('src', user.profileImage);
+                    }
+                } else if (pageName === 'friends') {
+                    // Arama olayını bağla
+                    $('#searchInput').on('keyup', function() {
+                        const query = $(this).val().trim();
+                        if (query.length >= 2) {
+                            searchUsers(query);
+                        } else {
+                            $('#searchResults').empty();
+                        }
+                    });
+                    // Varsayılan arkadaş listesini yükle
+                    showFriendTab('list');
+                } else if (pageName === 'groups') {
+                    loadGroups();
+                }
+                
+                $('.loading').hide();
+                $('#mainContent').show();
+            }, 500);
+        }
+
+        // Arama fonksiyonunu güncelle
+        function searchUsers(query) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            $.ajax({
+                url: '/api/friendship/search',
+                type: 'GET',
+                data: {
+                    query: query,
+                    currentUserId: user.id
+                },
+                success: function(response) {
+                    const searchResults = $('#searchResults');
+                    searchResults.empty();
+                    
+                    if (response.length === 0) {
+                        searchResults.append(`
+                            <div class="list-group-item text-center text-muted">
+                                Kullanıcı bulunamadı
+                            </div>
+                        `);
+                        return;
+                    }
+                    
+                    response.forEach(result => {
+                        let actionButton = '';
+                        switch(result.friendshipStatus) {
+                            case 'NONE':
+                                actionButton = `
+                                    <div class="btn-group">
+                                        <button class="btn btn-primary btn-sm" onclick="sendFriendRequest(${result.id}, this)">
+                                            <i class="fas fa-user-plus"></i> Arkadaş Ekle
+                                        </button>
+                                    </div>`;
+                                break;
+                            case 'PENDING_SENT':
+                                actionButton = `
+                                    <div class="btn-group">
+                                        <button class="btn btn-secondary btn-sm" disabled>
+                                            <i class="fas fa-clock"></i> Beklemede
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="cancelFriendRequest(${result.id}, this)">
+                                            <i class="fas fa-times"></i> İptal
+                                        </button>
+                                    </div>`;
+                                break;
+                            case 'ACCEPTED':
+                                actionButton = `
+                                    <button class="btn btn-success btn-sm" disabled>
+                                        <i class="fas fa-check"></i> Arkadaşsınız
+                                    </button>`;
+                                break;
+                        }
+                        
+                        searchResults.append(`
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="${result.profileImage || 'https://via.placeholder.com/40'}" 
+                                        class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <div>
+                                        <h6 class="mb-0">${result.firstName} ${result.lastName}</h6>
+                                    </div>
+                                </div>
+                                ${actionButton}
+                            </div>
+                        `);
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Arama hatası:', xhr.responseText);
+                }
+            });
+        }
+
+        // Kullanıcı bilgilerini güncelleme fonksiyonu
+        function updateUserInfo() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const updatedUser = {
+                id: user.id,
+                firstName: $('#settingsFirstName').val(),
+                lastName: $('#settingsLastName').val(),
+                email: $('#settingsEmail').val()
+            };
+
+            $.ajax({
+                url: '/api/auth/update-user',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(updatedUser),
+                success: function(response) {
+                    localStorage.setItem('user', JSON.stringify(response));
+                    $('#userName').text(response.firstName);
+                    alert('Bilgiler başarıyla güncellendi!');
+                },
+                error: function(xhr) {
+                    alert('Hata: ' + xhr.responseText);
+                }
+            });
+        }
+
+        // Bildirimleri kontrol et
+        function checkNotifications() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) return;
+
+            $.get(`/api/friendship/requests/${user.id}`, function(response) {
+                const count = response.length;
+                const badge = $('#notificationBadge');
+                
+                if (count > 0) {
+                    badge.text(count).removeClass('d-none');
+                } else {
+                    badge.addClass('d-none');
+                }
+            });
+        }
+
+        function showNotifications() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) return;
+
+            $.get(`/api/friendship/requests/${user.id}`, function(response) {
+                const modal = new bootstrap.Modal(document.getElementById('notificationsModal'));
+                const notificationsList = $('#notificationsList');
+                notificationsList.empty();
+
+                response.forEach(request => {
+                    notificationsList.append(`
+                        <div id="notification-${request.id}" class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <img src="${request.senderImage || 'https://via.placeholder.com/40'}" 
+                                    class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                <div>
+                                    <h6 class="mb-0">${request.senderName}</h6>
+                                    <small class="text-muted">Arkadaşlık isteği gönderdi</small>
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-success btn-sm" onclick="respondToRequest(${request.id}, true)">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="respondToRequest(${request.id}, false)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                });
+
+                if (response.length === 0) {
+                    notificationsList.append(`
+                        <div class="list-group-item text-center text-muted">
+                            Bildirim bulunmuyor
+                        </div>
+                    `);
+                }
+
+                modal.show();
+            });
+        }
+
+        function sendFriendRequest(userId, button) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            $(button).parent().html(`
+                <div class="btn-group">
+                    <button class="btn btn-secondary btn-sm" disabled>
+                        <i class="fas fa-clock"></i> Beklemede
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="cancelFriendRequest(${userId}, this)">
+                        <i class="fas fa-times"></i> İptal
+                    </button>
+                </div>
+            `);
+
+            $.post('/api/friendship/send-request', {
+                senderId: user.id,
+                receiverId: userId
+            }).fail(function(xhr) {
+                alert('Hata: ' + xhr.responseText);
+                searchUsers($('#searchInput').val().trim());
+            });
+        }
+
+        function cancelFriendRequest(userId, button) {
+            // Arkadaşlık isteğini iptal etme endpoint'i eklenecek
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            $.post('/api/friendship/cancel-request', {
+                senderId: user.id,
+                receiverId: userId
+            }).then(function() {
+                $(button).closest('.btn-group').html(`
+                    <button class="btn btn-primary btn-sm" onclick="sendFriendRequest(${userId}, this)">
+                        <i class="fas fa-user-plus"></i> Arkadaş Ekle
+                    </button>
+                `);
+            }).fail(function(xhr) {
+                alert('Hata: ' + xhr.responseText);
+            });
+        }
+
+        function showCreateGroupModal() {
+            $('#groupForm')[0].reset();
+            createGroupModal.show();
+        }
+
+        function createGroup() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const name = $('#groupName').val().trim();
+            const description = $('#groupDescription').val().trim();
+
+            if (!name) {
+                alert('Grup adı boş olamaz!');
+                return;
+            }
+
+            $.post('/api/groups/create', {
+                name: name,
+                description: description,
+                creatorId: user.id
+            }, function(response) {
+                alert('Grup başarıyla oluşturuldu!');
+                createGroupModal.hide();
+                loadGroups();
+            }).fail(function(xhr) {
+                alert('Hata: ' + xhr.responseText);
+            });
+        }
+
+        function loadGroups() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            $.get(`/api/groups/user/${user.id}`, function(response) {
+                const groupsList = $('#groupsList');
+                groupsList.empty();
+                
+                if (response.length === 0) {
+                    groupsList.append(`
+                        <div class="col-12">
+                            <div class="alert alert-info text-center">
+                                Henüz bir gruba üye değilsiniz.
+                            </div>
+                        </div>
+                    `);
+                    return;
+                }
+                
+                response.forEach(group => {
+                    groupsList.append(`
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">${group.name}</h5>
+                                    <p class="card-text text-muted">
+                                        ${group.description || 'Açıklama yok'}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-users"></i> ${group.memberCount} üye
+                                        </small>
+                                        ${group.isCreator ? `
+                                            <button class="btn btn-sm btn-outline-primary" onclick="manageGroup(${group.id})">
+                                                <i class="fas fa-cog"></i> Yönet
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
+            });
+        }
+
+        $(document).ready(function() {
+            // Modal nesnelerini başlat
+            passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+            profileImageModal = new bootstrap.Modal(document.getElementById('profileImageModal'));
+            createGroupModal = new bootstrap.Modal(document.getElementById('createGroupModal'));
+            manageGroupModal = new bootstrap.Modal(document.getElementById('manageGroupModal'));
+
+            // Kullanıcı kontrolü
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                window.location.href = '/';
+                return;
+            }
+            
+            // Kullanıcı bilgilerini göster
+            $('#userName').text(user.firstName);
+            if (user.profileImage) {
+                $('#userAvatar').attr('src', user.profileImage);
+            }
+
+            // Profil resmi yüklendiğinde önizleme göster
+            $('#profileImage').change(function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#imagePreview').attr('src', e.target.result).show();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Menü tıklamaları
+            $('.menu-item').click(function() {
+                $('.menu-item').removeClass('active');
+                $(this).addClass('active');
+                loadPage($(this).data('page'));
+            });
+
+            // Varsayılan sayfayı yükle
+            loadPage('overview');
+
+            // Bildirimleri kontrol et
+            checkNotifications();
+            notificationCheckInterval = setInterval(checkNotifications, 30000); // Her 30 saniyede bir kontrol et
+        });
+
+        function manageGroup(groupId) {
+            currentGroupId = groupId;
+            loadGroupMembers();
+            loadAvailableFriends();
+            manageGroupModal.show();
+        }
+
+        function loadGroupMembers() {
+            $.get(`/api/groups/${currentGroupId}/members`, function(response) {
+                const membersList = $('#membersList');
+                membersList.empty();
+                
+                // Önce grup bilgilerini alalım
+                $.get(`/api/groups/${currentGroupId}`, function(group) {
+                    const currentUser = JSON.parse(localStorage.getItem('user'));
+                    const isCreator = group.creatorId === currentUser.id;
+                    const isAdmin = group.admins.some(admin => admin.id === currentUser.id);
+                    
+                    response.forEach(member => {
+                        let adminBadge = '';
+                        
+                        if (member.isCreator) {
+                            adminBadge = '<span class="badge bg-primary">Kurucu</span>';
+                        } else if (member.isAdmin) {
+                            adminBadge = `
+                                <span class="badge bg-info admin-badge" ${isCreator ? 'title="Admin yetkisini kaldırmak için tıklayın"' : ''}>
+                                    Admin
+                                    ${isCreator ? `<i class="fas fa-times remove-admin" onclick="removeAdmin(${member.id})"></i>` : ''}
+                                </span>`;
+                        }
+                        
+                        let removeButton = '';
+                        if (!member.isCreator && (isCreator || (isAdmin && member.id !== currentUser.id))) {
+                            removeButton = `
+                                <button class="btn btn-link text-danger" onclick="removeMember(${member.id})" title="Üyeyi Çıkar">
+                                    <i class="fas fa-trash"></i>
+                                </button>`;
+                        }
+                        
+                        let makeAdminButton = '';
+                        if (!member.isCreator && !member.isAdmin && isCreator) {
+                            makeAdminButton = `
+                                <button class="btn btn-link text-info" onclick="makeAdmin(${member.id})" title="Admin Yap">
+                                    <i class="fas fa-user-shield"></i>
+                                </button>`;
+                        }
+                        
+                        membersList.append(`
+                            <div class="list-group-item member-card">
+                                <div class="d-flex align-items-center">
+                                    <img src="${member.profileImage || 'https://via.placeholder.com/40'}" 
+                                        class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <div>
+                                        <h6 class="mb-0">${member.firstName} ${member.lastName}</h6>
+                                        ${adminBadge}
+                                    </div>
+                                    <div class="member-actions">
+                                        ${makeAdminButton}
+                                        ${removeButton}
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                });
+            });
+        }
+
+        function loadAvailableFriends() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            $.get(`/api/groups/${currentGroupId}/available-friends?userId=${user.id}`, function(response) {
+                const friendsList = $('#availableFriendsList');
+                friendsList.empty();
+                
+                if (response.length === 0) {
+                    friendsList.append(`
+                        <div class="col-12">
+                            <div class="alert alert-info text-center">
+                                Eklenebilecek arkadaş bulunamadı
+                            </div>
+                        </div>
+                    `);
+                    return;
+                }
+                
+                response.forEach(friend => {
+                    friendsList.append(`
+                        <div class="col-md-4 mb-3">
+                            <div class="card friend-select-card" data-friend-id="${friend.id}" onclick="toggleFriendSelection(this)">
+                                <div class="card-body text-center">
+                                    <img src="${friend.profileImage || 'https://via.placeholder.com/80'}" 
+                                        class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                                    <h6 class="mb-0">${friend.firstName} ${friend.lastName}</h6>
+                                    <i class="fas fa-check check-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
+            });
+        }
+
+        function toggleFriendSelection(element) {
+            $(element).toggleClass('selected');
+        }
+
+        function addSelectedMembers() {
+            const selectedFriends = $('.friend-select-card.selected').map(function() {
+                return $(this).data('friend-id');
+            }).get();
+            
+            if (selectedFriends.length === 0) {
+                alert('Lütfen en az bir arkadaş seçin!');
+                return;
+            }
+            
+            let addedCount = 0;
+            selectedFriends.forEach(friendId => {
+                $.post(`/api/groups/${currentGroupId}/members/add?userId=${friendId}`, function() {
+                    addedCount++;
+                    if (addedCount === selectedFriends.length) {
+                        alert('Seçili üyeler başarıyla eklendi!');
+                        loadGroupMembers();
+                        loadAvailableFriends();
+                    }
+                }).fail(function(xhr) {
+                    alert('Hata: ' + xhr.responseText);
+                });
+            });
+        }
+
+        function makeAdmin(userId) {
+            $.post(`/api/groups/${currentGroupId}/admins/add?userId=${userId}`, function(response) {
+                alert('Yönetici rolü verildi!');
+                loadGroupMembers();
+            }).fail(function(xhr) {
+                alert('Hata: ' + xhr.responseText);
+            });
+        }
+
+        function removeAdmin(userId) {
+            if (!confirm('Yönetici rolünü kaldırmak istediğinize emin misiniz?')) return;
+            
+            const user = JSON.parse(localStorage.getItem('user'));
+            $.ajax({
+                url: `/api/groups/${currentGroupId}/admins/${userId}?userId=${user.id}`,
+                type: 'DELETE',
+                success: function(response) {
+                    alert('Yönetici rolü kaldırıldı!');
+                    loadGroupMembers();
+                },
+                error: function(xhr) {
+                    alert('Hata: ' + xhr.responseText);
+                }
+            });
+        }
+
+        function removeMember(userId) {
+            if (!confirm('Üyeyi gruptan çıkarmak istediğinize emin misiniz?')) return;
+            
+            const user = JSON.parse(localStorage.getItem('user'));
+            $.ajax({
+                url: `/api/groups/${currentGroupId}/members/${userId}?userId=${user.id}`,
+                type: 'DELETE',
+                success: function(response) {
+                    alert('Üye gruptan çıkarıldı!');
+                    loadGroupMembers();
+                    loadAvailableFriends();
+                },
+                error: function(xhr) {
+                    alert('Hata: ' + xhr.responseText);
+                }
+            });
+        }
+
+        function deleteGroup() {
+            if (!confirm('Grubu silmek istediğinize emin misiniz? Bu işlem geri alınamaz!')) return;
+            
+            const user = JSON.parse(localStorage.getItem('user'));
+            $.ajax({
+                url: `/api/groups/${currentGroupId}?userId=${user.id}`,
+                type: 'DELETE',
+                success: function(response) {
+                    alert('Grup silindi!');
+                    manageGroupModal.hide();
+                    loadGroups();
+                },
+                error: function(xhr) {
+                    alert('Hata: ' + xhr.responseText);
+                }
+            });
+        }
+    </script>
+</body>
+</html> 
