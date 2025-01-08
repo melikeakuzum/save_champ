@@ -258,4 +258,9 @@ public class GroupService {
             return ResponseEntity.badRequest().body("Hata: " + e.getMessage());
         }
     }
+
+    public Group findGroupById(Long groupId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findGroupById'");
+    }
 } 

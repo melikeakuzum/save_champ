@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.GroupService;
-import com.example.demo.entity.Group;
-import com.example.demo.entity.User;
+import com.example.demo.model.Group;
+import com.example.demo.model.User;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,7 +91,7 @@ public class GroupController {
     @GetMapping("/{groupId}")
     public ResponseEntity<?> getGroup(@PathVariable Long groupId) {
         try {
-            Group group = groupRepository.findById(groupId).orElse(null);
+            Group group = groupService.findGroupById(groupId);
             if (group == null) {
                 return ResponseEntity.badRequest().body("Grup bulunamadı!");
             }
