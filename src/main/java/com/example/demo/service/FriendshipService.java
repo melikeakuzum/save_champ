@@ -75,7 +75,8 @@ public class FriendshipService {
                 return ResponseEntity.badRequest().body("Kullanıcı bulunamadı!");
             }
             
-            List<Friendship> friendships = friendshipRepository.findAllFriendships(user);
+            List<Friendship> friendships = friendshipRepository.findAcceptedFriendships(user);
+
             List<Map<String, Object>> friends = friendships.stream().map(f -> {
                 User friend = f.getSender().getId().equals(userId) ? f.getReceiver() : f.getSender();
                 Map<String, Object> friendData = new HashMap<>();
@@ -124,6 +125,7 @@ public class FriendshipService {
 
             String searchQuery = query.trim();
             List<User> users = userRepository.findByFirstNameLikeOrLastNameLike(searchQuery, searchQuery);
+            User currentUser = userRepository.findById(currentUserId).get();
             
             List<Map<String, Object>> results = users.stream()
                 .filter(u -> !u.getId().equals(currentUserId))
@@ -134,14 +136,46 @@ public class FriendshipService {
                     userData.put("lastName", u.getLastName());
                     userData.put("profileImage", u.getProfileImage());
                     
-                    Friendship friendship = friendshipRepository.findFriendship(u, userRepository.findById(currentUserId).get());
-                    String status = friendship == null ? "NONE" : friendship.getStatus().toString();
+                    Friendship friendship = friendshipRepository.findFriendship(currentUser, u);
+                    String status = "NONE";
+                    Long friendshipId = null;
+                    
+                    if (friendship != null) {
+                        friendshipId = friendship.getId();
+                        if (friendship.getStatus() == Friendship.FriendshipStatus.ACCEPTED) {
+                            status = "ACCEPTED";
+                        } else if (friendship.getStatus() == Friendship.FriendshipStatus.PENDING) {
+                            status = friendship.getSender().getId().equals(currentUserId) ? "PENDING_SENT" : "PENDING_RECEIVED";
+                        } else if (friendship.getStatus() == Friendship.FriendshipStatus.REJECTED) {
+                            status = "NONE";
+                        }
+                    }
+                    
                     userData.put("friendshipStatus", status);
+                    userData.put("friendshipId", friendshipId);
                     
                     return userData;
                 }).collect(Collectors.toList());
             
             return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Hata: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<String> removeFriendship(Long userId, Long friendId) {
+        try {
+            User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+            User friend = userRepository.findById(friendId)
+                .orElseThrow(() -> new RuntimeException("Arkadaş bulunamadı"));
+
+            Friendship friendship = friendshipRepository.findFriendship(user, friend);
+            if (friendship != null) {
+                friendshipRepository.delete(friendship);
+                return ResponseEntity.ok("Arkadaşlık başarıyla silindi");
+            }
+            return ResponseEntity.badRequest().body("Arkadaşlık bulunamadı");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Hata: " + e.getMessage());
         }

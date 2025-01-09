@@ -56,6 +56,7 @@ public class GroupService {
                 return ResponseEntity.badRequest().body("Kullanıcı bulunamadı!");
             }
 
+            @SuppressWarnings("unused")
             List<Group> createdGroups = groupRepository.findByCreator(user);
             List<Group> memberGroups = groupRepository.findByMembersContaining(user);
 
@@ -239,17 +240,18 @@ public class GroupService {
             }
 
             // Kullanıcının arkadaşlarını al ve grupta olmayanları filtrele
-            List<User> friends = friendshipRepository.findAllFriendships(user).stream()
+            List<Object> friends = friendshipRepository.findAllFriendships(user).stream()
                 .map(f -> f.getSender().getId().equals(userId) ? f.getReceiver() : f.getSender())
                 .filter(friend -> !group.getMembers().contains(friend))
                 .collect(Collectors.toList());
 
             List<Map<String, Object>> result = friends.stream().map(f -> {
                 Map<String, Object> friendData = new HashMap<>();
-                friendData.put("id", f.getId());
-                friendData.put("firstName", f.getFirstName());
-                friendData.put("lastName", f.getLastName());
-                friendData.put("profileImage", f.getProfileImage());
+                User friend = (User) f;
+                friendData.put("id", friend.getId());
+                friendData.put("firstName", friend.getFirstName());
+                friendData.put("lastName", friend.getLastName());
+                friendData.put("profileImage", friend.getProfileImage());
                 return friendData;
             }).collect(Collectors.toList());
 
@@ -260,7 +262,81 @@ public class GroupService {
     }
 
     public Group findGroupById(Long groupId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findGroupById'");
+        return groupRepository.findById(groupId)
+            .orElseThrow(() -> new RuntimeException("Grup bulunamadı: " + groupId));
+    }
+
+    public ResponseEntity<?> getGroupDetails(Long groupId) {
+        try {
+            Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Grup bulunamadı!"));
+
+            Map<String, Object> groupDetails = new HashMap<>();
+            groupDetails.put("id", group.getId());
+            groupDetails.put("name", group.getName());
+            groupDetails.put("description", group.getDescription());
+            groupDetails.put("creatorId", group.getCreator().getId());
+            
+            // Admin listesini hazırla
+            List<Map<String, Object>> admins = group.getAdmins().stream()
+                .map(admin -> {
+                    Map<String, Object> adminData = new HashMap<>();
+                    adminData.put("id", admin.getId());
+                    adminData.put("firstName", admin.getFirstName());
+                    adminData.put("lastName", admin.getLastName());
+                    adminData.put("profileImage", admin.getProfileImage());
+                    return adminData;
+                }).collect(Collectors.toList());
+            
+            // Üye listesini hazırla
+            List<Map<String, Object>> members = group.getMembers().stream()
+                .map(member -> {
+                    Map<String, Object> memberData = new HashMap<>();
+                    memberData.put("id", member.getId());
+                    memberData.put("firstName", member.getFirstName());
+                    memberData.put("lastName", member.getLastName());
+                    memberData.put("profileImage", member.getProfileImage());
+                    memberData.put("isCreator", member.getId().equals(group.getCreator().getId()));
+                    memberData.put("isAdmin", group.getAdmins().contains(member));
+                    return memberData;
+                }).collect(Collectors.toList());
+
+            groupDetails.put("admins", admins);
+            groupDetails.put("members", members);
+
+            return ResponseEntity.ok(groupDetails);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Hata: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<?> leaveGroup(Long groupId, Long userId) {
+        try {
+            Group group = groupRepository.findById(groupId).orElse(null);
+            User user = userRepository.findById(userId).orElse(null);
+            
+            if (group == null || user == null) {
+                return ResponseEntity.badRequest().body("Grup veya kullanıcı bulunamadı!");
+            }
+            
+            // Grup kurucusu gruptan ayrılamaz
+            if (group.getCreator().getId().equals(userId)) {
+                return ResponseEntity.badRequest().body("Grup kurucusu gruptan ayrılamaz!");
+            }
+            
+            // Kullanıcı grupta değilse hata ver
+            if (!group.getMembers().contains(user)) {
+                return ResponseEntity.badRequest().body("Kullanıcı bu grupta değil!");
+            }
+            
+            // Kullanıcıyı gruptan ve adminlerden çıkar
+            group.getMembers().remove(user);
+            group.getAdmins().remove(user);
+            groupRepository.save(group);
+            
+            return ResponseEntity.ok("Gruptan başarıyla ayrıldınız!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Hata: " + e.getMessage());
+        }
     }
 } 

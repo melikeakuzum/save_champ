@@ -11,12 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.service.GroupService;
 import com.example.demo.model.Group;
-import com.example.demo.model.User;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.example.demo.service.GroupService;
 
 @RestController
 @RequestMapping("/api/groups")
@@ -88,24 +84,30 @@ public class GroupController {
         return groupService.getFriendsNotInGroup(groupId, userId);
     }
 
-    @GetMapping("/{groupId}")
-    public ResponseEntity<?> getGroup(@PathVariable Long groupId) {
+    @PostMapping("/{groupId}/leave")
+    public ResponseEntity<?> leaveGroup(
+            @PathVariable Long groupId,
+            @RequestParam Long userId) {
+        return groupService.leaveGroup(groupId, userId);
+    }
+
+    @GetMapping("/{groupId}/details")
+    public ResponseEntity<Group> getGroupDetails(@PathVariable Long groupId) {
         try {
             Group group = groupService.findGroupById(groupId);
-            if (group == null) {
-                return ResponseEntity.badRequest().body("Grup bulunamadı!");
-            }
+            return ResponseEntity.ok(group);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 
-            Map<String, Object> groupData = new HashMap<>();
-            groupData.put("id", group.getId());
-            groupData.put("name", group.getName());
-            groupData.put("description", group.getDescription());
-            groupData.put("creatorId", group.getCreator().getId());
-            groupData.put("admins", group.getAdmins().stream().map(User::getId).collect(Collectors.toList()));
-            
-            return ResponseEntity.ok(groupData);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Hata: " + e.getMessage());
+    @GetMapping("/{groupId}")
+    public ResponseEntity<Group> getGroup(@PathVariable Long groupId) {
+        try {
+            Group group = groupService.findGroupById(groupId);
+            return ResponseEntity.ok(group);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 } 

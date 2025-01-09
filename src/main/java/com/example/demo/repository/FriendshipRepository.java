@@ -11,12 +11,26 @@ import com.example.demo.model.User;
 
 public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
     
-    @Query("SELECT f FROM Friendship f WHERE (f.sender = :user OR f.receiver = :user) AND f.status = 'ACCEPTED'")
+    @Query("SELECT f FROM Friendship f LEFT JOIN FETCH f.sender LEFT JOIN FETCH f.receiver WHERE f.sender = :user OR f.receiver = :user")
     List<Friendship> findAllFriendships(@Param("user") User user);
     
-    @Query("SELECT f FROM Friendship f WHERE f.receiver = :user AND f.status = 'PENDING'")
+    @Query("SELECT f FROM Friendship f LEFT JOIN FETCH f.sender LEFT JOIN FETCH f.receiver WHERE (f.sender = :user OR f.receiver = :user) AND f.status = 'ACCEPTED'")
+    List<Friendship> findAcceptedFriendships(@Param("user") User user);
+    
+    @Query("SELECT f FROM Friendship f LEFT JOIN FETCH f.sender LEFT JOIN FETCH f.receiver WHERE f.receiver = :user AND f.status = 'PENDING'")
     List<Friendship> findPendingRequests(@Param("user") User user);
     
     @Query("SELECT f FROM Friendship f WHERE (f.sender = :user1 AND f.receiver = :user2) OR (f.sender = :user2 AND f.receiver = :user1)")
     Friendship findFriendship(@Param("user1") User user1, @Param("user2") User user2);
+    
+    @Query("SELECT f FROM Friendship f WHERE ((f.sender = :user1 AND f.receiver = :user2) OR (f.sender = :user2 AND f.receiver = :user1)) AND f.status = 'ACCEPTED'")
+    Friendship findAcceptedFriendship(@Param("user1") User user1, @Param("user2") User user2);
+    
+    @Query("SELECT f FROM Friendship f WHERE " +
+            "((f.sender = :user1 AND f.receiver = :user2) OR " +
+            "(f.sender = :user2 AND f.receiver = :user1)) AND " +
+            "f.status = 'ACCEPTED'")
+    Friendship findActiveFriendship(@Param("user1") User user1, @Param("user2") User user2);
+
+    
 } 

@@ -7,6 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .dashboard-container {
             min-height: 100vh;
@@ -196,411 +197,87 @@
         .friend-select-card.selected .check-icon {
             display: block;
         }
-    </style>
-</head>
-<body>
-    <div class="dashboard-container">
-        <div class="container">
-            <div class="row">
-                <!-- Header -->
-                <div class="col-12 mb-4">
-                    <div class="user-header">
-                        <div class="user-info">
-                            <img src="https://via.placeholder.com/40" alt="Profil" class="user-avatar" id="userAvatar">
-                            <p class="user-name">Hoş geldin, <span id="userName"></span>!</p>
-                            <div class="ms-auto">
-                                <div class="position-relative d-inline-block">
-                                    <button class="btn btn-link text-dark" onclick="showNotifications()">
-                                        <i class="fas fa-bell"></i>
-                                        <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
-                                            0
-                                        </span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Sidebar Menu -->
-                <div class="col-md-3 mb-4">
-                    <div class="sidebar">
-                        <div class="menu-item active" data-page="overview">
-                            <i class="fas fa-home"></i> Genel Bakış
-                        </div>
-                        <div class="menu-item" data-page="groups">
-                            <i class="fas fa-users"></i> Gruplarım
-                        </div>
-                        <div class="menu-item" data-page="friends">
-                            <i class="fas fa-user-friends"></i> Arkadaşlarım
-                        </div>
-                        <div class="menu-item" data-page="expenses">
-                            <i class="fas fa-receipt"></i> Harcamalarım
-                        </div>
-                        <div class="menu-item" data-page="competitions">
-                            <i class="fas fa-trophy"></i> Yarışmalar
-                        </div>
-                        <div class="menu-item" data-page="settings">
-                            <i class="fas fa-cog"></i> Ayarlar
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Main Content -->
-                <div class="col-md-9">
-                    <div class="content-card">
-                        <div id="mainContent" class="fade-in">
-                            <!-- İçerik buraya dinamik olarak yüklenecek -->
-                        </div>
-                        <div class="loading">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Şifre Değiştirme Modal -->
-    <div class="modal fade" id="passwordModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Şifre Değiştir</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="passwordForm">
-                        <div class="mb-3">
-                            <label class="form-label">Mevcut Şifre</label>
-                            <input type="password" class="form-control" id="oldPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Yeni Şifre</label>
-                            <input type="password" class="form-control" id="newPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Yeni Şifre (Tekrar)</label>
-                            <input type="password" class="form-control" id="confirmPassword" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                    <button type="button" class="btn btn-primary" onclick="updatePassword()">Güncelle</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Profil Resmi Modal -->
-    <div class="modal fade" id="profileImageModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Profil Resmi Değiştir</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="imageForm">
-                        <div class="mb-3">
-                            <label class="form-label">Yeni Profil Resmi</label>
-                            <input type="file" class="form-control" id="profileImage" accept="image/*" required>
-                        </div>
-                        <div class="text-center mt-3">
-                            <img id="imagePreview" style="max-width: 200px; display: none;">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                    <button type="button" class="btn btn-primary" onclick="updateProfileImage()">Güncelle</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bildirimler Modal -->
-    <div class="modal fade" id="notificationsModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Bildirimler</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="list-group" id="notificationsList">
-                        <!-- Bildirimler buraya dinamik olarak eklenecek -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Yeni Grup Oluştur Modal -->
-    <div class="modal fade" id="createGroupModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Yeni Grup Oluştur</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="groupForm">
-                        <div class="mb-3">
-                            <label class="form-label">Grup Adı</label>
-                            <input type="text" class="form-control" id="groupName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Açıklama</label>
-                            <textarea class="form-control" id="groupDescription" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                    <button type="button" class="btn btn-primary" onclick="createGroup()">Oluştur</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Grup Yönetimi Modal -->
-    <div class="modal fade" id="manageGroupModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Grup Yönetimi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <ul class="nav nav-tabs mb-3">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-bs-toggle="tab" href="#members">Üyeler</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#addMembers">Üye Ekle</a>
-                        </li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="members">
-                            <div class="list-group" id="membersList"></div>
-                        </div>
-                        <div class="tab-pane fade" id="addMembers">
-                            <div class="mb-3">
-                                <div class="row" id="availableFriendsList">
-                                    <!-- Arkadaşlar buraya eklenecek -->
-                                </div>
-                                <div class="mt-3">
-                                    <button class="btn btn-primary w-100" onclick="addSelectedMembers()">
-                                        Seçili Arkadaşları Ekle
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-<!DOCTYPE html>
-<html lang="tr" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Ana Sayfa - Harcama Yarışması</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        .dashboard-container {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 2rem;
+        .expenses-section {
+            margin-top: 20px;
         }
-        .content-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            min-height: 400px;
+        .table th {
+            background-color: #f8f9fa;
         }
-        .sidebar {
-            background: white;
-            border-radius: 15px;
-            padding: 1rem;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        .table td, .table th {
+            vertical-align: middle;
         }
-        .menu-item {
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: #666;
+        .ranking-container {
+            max-height: 400px;
+            overflow-y: auto;
         }
-        .menu-item:hover, .menu-item.active {
-            background: #764ba2;
-            color: white;
+        .leaderboard-item {
+            transition: all 0.3s ease;
         }
-        .menu-item i {
-            margin-right: 10px;
-            width: 20px;
+        .leaderboard-item:hover {
+            transform: translateX(5px);
         }
-        .fade-in {
-            animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .loading {
-            display: none;
+        .position-indicator {
+            font-size: 1.2em;
+            min-width: 30px;
             text-align: center;
-            padding: 2rem;
         }
-        .loading i {
-            font-size: 2rem;
-            color: #764ba2;
-        }
-        .user-header {
-            padding: 0.5rem;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
-        }
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
+        .expense-amount {
+            font-weight: bold;
         }
         .user-info {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        .user-name {
-            margin: 0;
-            font-size: 1rem;
-            color: #666;
+        .user-info img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
         }
-        .search-box {
+        .rank-gold {
+            background: linear-gradient(45deg, #FFD700, #FDB931);
+            color: #000;
+        }
+        .rank-silver {
+            background: linear-gradient(45deg, #C0C0C0, #D7D7D7);
+            color: #000;
+        }
+        .rank-bronze {
+            background: linear-gradient(45deg, #CD7F32, #B87333);
+            color: #fff;
+        }
+        /* Carousel kontrolleri için stil */
+        #bestRankContainer .carousel-control-prev,
+        #bestRankContainer .carousel-control-next {
+            width: 10%;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+
+        #bestRankContainer .carousel-control-prev:hover,
+        #bestRankContainer .carousel-control-next:hover {
+            background-color: rgba(0,0,0,0.2);
+        }
+
+        #bestRankContainer {
             position: relative;
-            margin-bottom: 1rem;
+            min-height: 100px;
         }
-        .search-box input {
-            padding-left: 2.5rem;
+
+        .rank-gold {
+            background-color: #ffd700 !important;
+            color: #000;
         }
-        .search-box i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
+
+        .rank-silver {
+            background-color: #c0c0c0 !important;
+            color: #000;
         }
-        .btn-primary {
-            background: #764ba2;
-            border-color: #764ba2;
-        }
-        .btn-primary:hover {
-            background: #667eea;
-            border-color: #667eea;
-        }
-        .btn-secondary {
-            background: #6c757d;
-            border-color: #6c757d;
-        }
-        .btn-secondary:hover {
-            background: #5a6268;
-            border-color: #5a6268;
-        }
-        .btn-danger {
-            background: #dc3545;
-            border-color: #dc3545;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-            border-color: #bd2130;
-        }
-        .friend-tab {
-            animation: fadeIn 0.3s;
-        }
-        .list-group-item {
-            transition: all 0.3s;
-        }
-        .list-group-item:hover {
-            background-color: #f8f9fa;
-        }
-        .btn-group .btn {
-            transition: all 0.3s;
-        }
-        .badge {
-            transition: all 0.3s;
-        }
-        .search-input {
-            border-radius: 20px;
-            padding-left: 40px;
-        }
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
-        }
-        .member-card {
-            position: relative;
-            transition: all 0.3s;
-        }
-        .member-card:hover {
-            background-color: #f8f9fa;
-        }
-        .member-actions {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .admin-badge {
-            position: relative;
-            padding-right: 25px;
-            cursor: pointer;
-        }
-        .admin-badge .remove-admin {
-            position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .admin-badge:hover .remove-admin {
-            opacity: 1;
-        }
-        .friend-select-card {
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-        .friend-select-card.selected {
-            border-color: #764ba2;
-            background-color: #f8f9fa;
-        }
-        .friend-select-card .check-icon {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            color: #764ba2;
-            display: none;
-        }
-        .friend-select-card.selected .check-icon {
-            display: block;
+
+        .rank-bronze {
+            background-color: #cd7f32 !important;
+            color: #000;
         }
     </style>
 </head>
@@ -644,7 +321,7 @@
                             <i class="fas fa-receipt"></i> Harcamalarım
                         </div>
                         <div class="menu-item" data-page="competitions">
-                            <i class="fas fa-trophy"></i> Yarışmalar
+                            <i class="fas fa-trophy"></i> Şampiyonlar
                         </div>
                         <div class="menu-item" data-page="settings">
                             <i class="fas fa-cog"></i> Ayarlar
@@ -777,7 +454,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Grup Yönetimi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <div>
+                        <button class="btn btn-danger me-2" onclick="deleteGroup(currentGroupId)">
+                            <i class="fas fa-trash"></i> Grubu Sil
+                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
                 </div>
                 <div class="modal-body">
                     <ul class="nav nav-tabs mb-3">
@@ -804,6 +486,258 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grup detayları içinde, üyeler listesinden sonra ekleyin -->
+    <div class="expenses-section" style="display: none;" id="expensesSection">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Grup Harcamaları</h5>
+                <button class="btn btn-primary btn-sm" onclick="showAddExpenseModal()">
+                    <i class="fas fa-plus"></i> Harcama Ekle
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tarih</th>
+                                <th>Açıklama</th>
+                                <th>Miktar</th>
+                                <th>Ödeyen Üye</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTableBody">
+                            <!-- Harcamalar buraya dinamik olarak eklenecek -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Harcama Ekleme Modal -->
+    <div class="modal fade" id="addExpenseModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Harcama Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="expenseForm">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Gruplar</label>
+                                    <div id="expenseGroup" class="list-group">
+                                        <!-- Gruplar dinamik olarak yüklenecek -->
+                                    </div>
+                                    <small class="text-muted">Birden fazla grup seçebilirsiniz</small>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="splitExpense">
+                                        <label class="form-check-label" for="splitExpense">
+                                            Tutarı Grup Üyeleri Arasında Eşit Bölüştür
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Kategori</label>
+                                    <select class="form-select" id="expenseCategory" required>
+                                        <option value="YEMEK">Yemek</option>
+                                        <option value="EGLENCE">Eğlence</option>
+                                        <option value="ULASIM">Ulaşım</option>
+                                        <option value="ALISVERIS">Alışveriş</option>
+                                        <option value="EGITIM">Eğitim</option>
+                                        <option value="SAGLIK">Sağlık</option>
+                                        <option value="DIGER">Diğer</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Açıklama</label>
+                                    <input type="text" class="form-control" id="expenseDescription" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Miktar (TL)</label>
+                                    <input type="number" step="0.01" class="form-control" id="expenseAmount" required onchange="handleGroupSelection()">
+                                    <div id="amountInfo"></div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="createExpense()">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grup Detayları -->
+    <div id="groupDetails" style="display: none;">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 id="groupName"></h5>
+                <div class="btn-group">
+                    <button class="btn btn-danger btn-sm" onclick="deleteGroup()">
+                        <i class="fas fa-trash"></i> Grubu Sil
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs mb-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#members">Üyeler</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#addMembers">Üye Ekle</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="members">
+                        <div class="list-group" id="membersList">
+                            <!-- Üyeler buraya dinamik olarak eklenecek -->
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="addMembers">
+                        <!-- Mevcut üye ekleme formu -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Yarışma Detay Modal -->
+    <div class="modal fade" id="competitionDetailModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yarışma Detayları</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="competition-info mb-4">
+                        <h6 id="competitionTitle"></h6>
+                        <p id="competitionDates" class="text-muted"></p>
+                    </div>
+                    <div class="leaderboard">
+                        <h6 class="mb-3">Sıralama</h6>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Sıra</th>
+                                        <th>Üye</th>
+                                        <th>Toplam Harcama</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Management Section -->
+    <div id="groupManagement" class="content-section" style="display: none;">
+        <div class="row">
+            <div class="col-12">
+                <h3>Grup Yönetimi</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title" id="groupName"></h5>
+                            <button class="btn btn-danger" onclick="deleteGroup()">
+                                <i class="fas fa-trash"></i> Grubu Sil
+                            </button>
+                        </div>
+                        <div class="members-list mt-4">
+                            <h6>Üyeler</h6>
+                            <div id="membersList" class="list-group">
+                                <!-- Üyeler buraya dinamik olarak eklenecek -->
+                            </div>
+                        </div>
+                        <div class="add-member mt-4">
+                            <h6>Arkadaş Ekle</h6>
+                            <div id="availableFriendsList" class="row">
+                                <!-- Eklenebilecek arkadaşlar buraya dinamik olarak eklenecek -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Competitions Section -->
+    <div id="competitions" class="content-section" style="display: none;">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Yarışmalar</h3>
+                    <button class="btn btn-primary" onclick="showCreateCompetitionModal()">
+                        <i class="fas fa-plus"></i> Yeni Yarışma
+                    </button>
+                </div>
+                <div class="row" id="competitionsList">
+                    <!-- Yarışmalar buraya dinamik olarak eklenecek -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Competition Modal -->
+    <div class="modal fade" id="createCompetitionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Yarışma Oluştur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Yarışma Başlığı</label>
+                        <input type="text" class="form-control" id="competitionTitle">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Yarışma Tipi</label>
+                        <select class="form-select" id="competitionType">
+                            <option value="WEEKLY">Haftalık</option>
+                            <option value="MONTHLY">Aylık</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="createCompetition()">Oluştur</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yarışma Sonuçları Modal -->
+    <div class="modal fade" id="competitionResultsModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yarışma Sonuçları</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group" id="competitionResultsList">
+                        <!-- Sonuçlar buraya dinamik olarak eklenecek -->
                     </div>
                 </div>
             </div>
@@ -819,6 +753,13 @@
         let manageGroupModal;
         let currentGroupId;
         
+        // Grafik değişkenlerini global olarak tanımlayalım
+        let pieChart = null;
+        let barChart = null;
+
+        // Global değişken olarak seçili grubu tutalım
+        let selectedGroupMembers = [];
+
         // Fonksiyonları global scope'ta tanımlayın
         function showSettingsModal(type) {
             if (type === 'profile') {
@@ -1072,6 +1013,17 @@
                                             </button>
                                         </div>`;
                                     break;
+                                case 'PENDING_RECEIVED':
+                                    actionButton = `
+                                        <div class="btn-group">
+                                            <button class="btn btn-success btn-sm" onclick="respondToRequest(${result.friendshipId}, true)">
+                                                <i class="fas fa-check"></i> Kabul Et
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="respondToRequest(${result.friendshipId}, false)">
+                                                <i class="fas fa-times"></i> Reddet
+                                            </button>
+                                        </div>`;
+                                    break;
                                 case 'ACCEPTED':
                                     actionButton = `
                                         <button class="btn btn-success btn-sm" disabled>
@@ -1081,7 +1033,7 @@
                             }
                             
                             searchResults.append(`
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="list-group-item d-flex justify-content-between align-items-center" data-friend-id="${result.id}">
                                     <div class="d-flex align-items-center">
                                         <img src="${result.profileImage || 'https://via.placeholder.com/40'}" 
                                             class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
@@ -1096,6 +1048,7 @@
                     },
                     error: function(xhr) {
                         alert('Hata: ' + xhr.responseText);
+                        showAlert('error', 'Kullanıcılar aranırken bir hata oluştu');
                     }
                 });
             }, 500);
@@ -1107,11 +1060,25 @@
             $.post('/api/friendship/send-request', {
                 senderId: user.id,
                 receiverId: receiverId
-            }, function(response) {
-                alert('Arkadaşlık isteği gönderildi!');
-                $('#searchInput').trigger('input'); // Arama sonuçlarını güncelle
-            }).fail(function(xhr) {
-                alert('Hata: ' + xhr.responseText);
+            })
+            .then(response => {
+                // Sadece buton durumunu güncelle
+                const searchResults = $('#searchResults');
+                const userItem = searchResults.find(`[data-friend-id="${receiverId}"]`).closest('.list-group-item');
+                if (userItem.length) {
+                    userItem.find('.btn-group').html(`
+                        <button class="btn btn-secondary btn-sm" disabled>
+                            <i class="fas fa-clock"></i> Beklemede
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="cancelFriendRequest(${receiverId}, this)">
+                            <i class="fas fa-times"></i> İptal
+                        </button>
+                    `);
+                }
+                showAlert('success', 'Arkadaşlık isteği gönderildi!');
+            })
+            .fail(function(xhr) {
+                showAlert('error', 'Hata: ' + xhr.responseText);
             });
         }
 
@@ -1119,7 +1086,8 @@
             $.post('/api/friendship/respond', {
                 friendshipId: friendshipId,
                 accept: accept
-            }, function(response) {
+            })
+            .then(response => {
                 // İlgili bildirimi hemen kaldır
                 $(`#notification-${friendshipId}`).fadeOut(300, function() {
                     $(this).remove();
@@ -1136,20 +1104,63 @@
                 // Bildirim sayacını güncelle
                 checkNotifications();
                 
+                // Sadece kabul edildiğinde arkadaş listesini güncelle
                 if (accept) {
-                    loadFriends(); // Arkadaş listesini güncelle
+                    loadFriends();
+                    showAlert('success', 'Arkadaşlık isteği kabul edildi!');
+                    
+                    // Arama sonuçlarını güncelle (eğer arama yapılmışsa)
+                    const searchInput = $('#searchInput').val();
+                    if (searchInput && searchInput.trim()) {
+                        searchUsers(searchInput.trim());
+                    }
+                } else {
+                    showAlert('success', 'Arkadaşlık isteği reddedildi!');
                 }
-                
-                alert(response);
-            }).fail(function(xhr) {
-                alert('Hata: ' + xhr.responseText);
+
+                // Modal'ı kapat
+                const modal = bootstrap.Modal.getInstance(document.getElementById('notificationsModal'));
+                if (modal) {
+                    modal.hide();
+                }
+            })
+            .fail(function(xhr) {
+                showAlert('error', 'Hata: ' + xhr.responseText);
             });
         }
 
         function removeFriend(friendId) {
-            if (confirm('Bu arkadaşı silmek istediğinize emin misiniz?')) {
-                // Arkadaşlık silme endpoint'i eklenecek
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            if (!currentUser || !friendId) {
+                showAlert('error', 'Kullanıcı bilgisi eksik!');
+                return;
             }
+
+            if (!confirm('Bu arkadaşı silmek istediğinize emin misiniz?')) {
+                return;
+            }
+
+            fetch(`/api/friendship/remove/${currentUser.id}/${friendId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    showAlert('success', 'Arkadaşlık başarıyla silindi');
+                    loadFriends(); // Arkadaş listesini yenile
+                    
+                    // Eğer arama sonuçları açıksa, arama sonuçlarını da yenile
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput && searchInput.value.trim()) {
+                        searchUsers(searchInput.value.trim());
+                    }
+                } else {
+                    throw new Error('Arkadaşlık silinirken bir hata oluştu');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('error', 'Arkadaşlık silinirken bir hata oluştu');
+            });
         }
 
         function logout() {
@@ -1164,27 +1175,50 @@
                 content: `
                     <h2>Genel Bakış</h2>
                     <div class="row mt-4">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card">
                                 <div class="card-body">
-                                    <h5>Aktif Yarışmalar</h5>
-                                    <h2>3</h2>
+                                    <h5>Toplam Harcama</h5>
+                                    <h2 id="overviewTotalExpense">0.00 TL</h2>
+                                    <small class="text-muted">Toplam <span id="overviewExpenseCount">0</span> harcama</small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5>Toplam Tasarruf</h5>
-                                    <h2>₺1,250</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card">
                                 <div class="card-body">
                                     <h5>Grup Sayısı</h5>
-                                    <h2>2</h2>
+                                    <h2 id="overviewGroupCount">0</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Arkadaş Sayısı</h5>
+                                    <h2 id="overviewFriendCount">0</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>En İyi Sıralama</h5>
+                                    <div id="bestRankContainer" class="carousel slide" data-bs-ride="carousel">
+                                        <!-- Carousel Kontrolleri -->
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#bestRankContainer" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Önceki</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#bestRankContainer" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Sonraki</span>
+                                        </button>
+                                        <!-- Carousel İçeriği -->
+                                        <div class="carousel-inner">
+                                            <!-- JavaScript ile doldurulacak -->
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1304,10 +1338,271 @@
                     </div>
                 `
             },
-            // Diğer sayfalar için benzer şekilde içerikler ekleyin
+            expenses: {
+                title: 'Harcamalarım',
+                content: `
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <button class="btn btn-primary float-end" onclick="showAddExpenseModal()">
+                                <i class="fas fa-plus"></i> Yeni Harcama Ekle
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <ul class="nav nav-tabs card-header-tabs">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" data-bs-toggle="tab" href="#personalExpenses">
+                                                <i class="fas fa-user"></i> Harcama Listesi
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" data-bs-toggle="tab" href="#expenseStats">
+                                                <i class="fas fa-chart-pie"></i> İstatistikler
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content">
+                                        <div class="tab-pane fade show active" id="personalExpenses">
+                                            <div class="alert alert-info mb-3">
+                                                <h5 class="mb-0">Toplam Harcama: <span id="totalExpenseAmount">0.00</span> TL</h5>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Tarih</th>
+                                                            <th>Açıklama</th>
+                                                            <th>Kategori</th>
+                                                            <th>Miktar</th>
+                                                            <th>Grup</th>
+                                                            <th>İşlemler</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="personalExpensesTable">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="expenseStats">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <canvas id="categoryPieChart"></canvas>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <canvas id="monthlyBarChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            competitions: {
+                title: 'Yarışmalar',
+                content: `
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row mb-4">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Grup Seçin</label>
+                                            <select class="form-select" id="competitionGroupSelect" onchange="loadGroupRankings()">
+                                                <option value="">Grup seçin...</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header bg-primary text-white">
+                                                    <h5 class="mb-0">Haftalık Sıralama</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div id="weeklyRanking" class="ranking-container">
+                                                        <!-- Haftalık sıralama buraya gelecek -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header bg-primary text-white">
+                                                    <h5 class="mb-0">Aylık Sıralama</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div id="monthlyRanking" class="ranking-container">
+                                                        <!-- Aylık sıralama buraya gelecek -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <style>
+                        .ranking-container {
+                            max-height: 400px;
+                            overflow-y: auto;
+                        }
+                        .rank-gold {
+                            background: linear-gradient(45deg, #FFD700, #FDB931);
+                            color: #000;
+                        }
+                        .rank-silver {
+                            background: linear-gradient(45deg, #C0C0C0, #D7D7D7);
+                            color: #000;
+                        }
+                        .rank-bronze {
+                            background: linear-gradient(45deg, #CD7F32, #B87333);
+                            color: #fff;
+                        }
+                    </style>
+                `
+            }
         };
 
-        // loadPage fonksiyonunu ekleyin
+        // Genel bakış verilerini yükle
+        function loadOverviewData() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            // Toplam harcama ve harcama sayısı
+            fetch(`/api/expenses/user/${user.id}`)
+                .then(response => response.json())
+                .then(expenses => {
+                    // Harcamaları saniyeye göre grupla
+                    const uniqueExpenses = new Map();
+                    expenses.forEach(expense => {
+                        const date = new Date(expense.createdAt);
+                        const secondKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${Math.floor(date.getSeconds() / 15) * 15}`;
+                        
+                        if (!uniqueExpenses.has(secondKey) || new Date(expense.createdAt) > new Date(uniqueExpenses.get(secondKey).createdAt)) {
+                            uniqueExpenses.set(secondKey, expense);
+                        }
+                    });
+
+                    const totalExpense = Array.from(uniqueExpenses.values())
+                        .reduce((sum, expense) => sum + expense.amount, 0);
+                    document.getElementById('overviewTotalExpense').textContent = totalExpense.toFixed(2) + ' TL';
+                    document.getElementById('overviewExpenseCount').textContent = uniqueExpenses.size;
+                    
+                    // Aynı toplam tutarı harcamalar sayfasında da göster
+                    const totalExpenseElement = document.getElementById('totalExpenseAmount');
+                    if (totalExpenseElement) {
+                        totalExpenseElement.textContent = totalExpense.toFixed(2);
+                    }
+                });
+
+            // Grup sayısı ve sıralamalar
+            fetch(`/api/groups/user/${user.id}`)
+                .then(response => response.json())
+                .then(groups => {
+                    document.getElementById('overviewGroupCount').textContent = groups.length;
+
+                    if (groups.length === 0) {
+                        const carouselInner = document.querySelector('#bestRankContainer .carousel-inner');
+                        carouselInner.innerHTML = `
+                            <div class="carousel-item active">
+                                <div class="text-center text-muted p-3">
+                                    <i class="fas fa-trophy fa-3x mb-2"></i>
+                                    <p class="mb-0">Henüz bir gruba üye değilsiniz</p>
+                                </div>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Her grup için sıralama kontrolü
+                    const endDate = new Date();
+                    const startDate = new Date();
+                    startDate.setMonth(endDate.getMonth() - 1); // Son 1 ayın verileri
+
+                    Promise.all(groups.map(group => 
+                        fetch(`/api/expenses/group-ranking?groupId=${group.id}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&period=MONTHLY`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Sıralama alınamadı');
+                                }
+                                return response.json();
+                            })
+                            .then(ranking => ({
+                                group: group,
+                                ranking: ranking
+                            }))
+                            .catch(error => {
+                                console.error('Hata:', error);
+                                return null;
+                            })
+                    ))
+                    .then(groupRankings => {
+                        // Hata veren grupları filtrele
+                        groupRankings = groupRankings.filter(gr => gr !== null);
+                        
+                        // İlk 3'te olduğu grupları filtrele
+                        const topRankings = groupRankings.filter(gr => {
+                            const userRanking = gr.ranking.find(r => r.user.id === user.id);
+                            return userRanking && userRanking.rank <= 3;
+                        });
+
+                        const carouselInner = document.querySelector('#bestRankContainer .carousel-inner');
+                        
+                        if (topRankings.length === 0) {
+                            carouselInner.innerHTML = `
+                                <div class="carousel-item active">
+                                    <div class="text-center text-muted p-3">
+                                        <i class="fas fa-trophy fa-3x mb-2"></i>
+                                        <p class="mb-0">Henüz ilk 3'e girdiğiniz grup yok</p>
+                                    </div>
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        carouselInner.innerHTML = topRankings.map((gr, index) => {
+                            const userRanking = gr.ranking.find(r => r.user.id === user.id);
+                            const rankClass = userRanking.rank === 1 ? 'rank-gold' : 
+                                            userRanking.rank === 2 ? 'rank-silver' : 
+                                            'rank-bronze';
+                            const medal = userRanking.rank === 1 ? '🥇' : 
+                                        userRanking.rank === 2 ? '🥈' : '🥉';
+                            
+                            return `
+                                <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                    <div class="p-2 rounded ${rankClass}">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3">
+                                                <span style="font-size: 2rem;">${medal}</span>
+                                            </div>
+                                            <div>
+                                                <h5 class="mb-0">${gr.group.name}</h5>
+                                                <small>${userRanking.rank}. sıradasınız</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    });
+                });
+
+            // Arkadaş sayısı
+            fetch(`/api/friendship/friends/${user.id}`)
+                .then(response => response.json())
+                .then(friends => {
+                    document.getElementById('overviewFriendCount').textContent = friends.length;
+                });
+        }
+
+        // loadPage fonksiyonunu güncelleyin
         function loadPage(pageName) {
             const page = pages[pageName];
             if (!page) return;
@@ -1319,7 +1614,9 @@
                 $('#mainContent').html(page.content);
                 
                 // Sayfa yüklendikten sonra gerekli işlemleri yap
-                if (pageName === 'settings') {
+                if (pageName === 'overview') {
+                    loadOverviewData();
+                } else if (pageName === 'settings') {
                     const user = JSON.parse(localStorage.getItem('user'));
                     // Mevcut değerleri göster
                     $('#currentFirstName').text(user.firstName);
@@ -1345,6 +1642,10 @@
                     showFriendTab('list');
                 } else if (pageName === 'groups') {
                     loadGroups();
+                } else if (pageName === 'expenses') {
+                    loadUserExpenses();
+                } else if (pageName === 'competitions') {
+                    initializeCompetitionsPage();
                 }
                 
                 $('.loading').hide();
@@ -1398,6 +1699,17 @@
                                         </button>
                                     </div>`;
                                 break;
+                            case 'PENDING_RECEIVED':
+                                actionButton = `
+                                    <div class="btn-group">
+                                        <button class="btn btn-success btn-sm" onclick="respondToRequest(${result.friendshipId}, true)">
+                                            <i class="fas fa-check"></i> Kabul Et
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="respondToRequest(${result.friendshipId}, false)">
+                                            <i class="fas fa-times"></i> Reddet
+                                        </button>
+                                    </div>`;
+                                break;
                             case 'ACCEPTED':
                                 actionButton = `
                                     <button class="btn btn-success btn-sm" disabled>
@@ -1407,7 +1719,7 @@
                         }
                         
                         searchResults.append(`
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="list-group-item d-flex justify-content-between align-items-center" data-friend-id="${result.id}">
                                 <div class="d-flex align-items-center">
                                     <img src="${result.profileImage || 'https://via.placeholder.com/40'}" 
                                         class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
@@ -1422,6 +1734,7 @@
                 },
                 error: function(xhr) {
                     console.error('Arama hatası:', xhr.responseText);
+                    showAlert('error', 'Kullanıcılar aranırken bir hata oluştu');
                 }
             });
         }
@@ -1613,11 +1926,17 @@
                                         <small class="text-muted">
                                             <i class="fas fa-users"></i> ${group.memberCount} üye
                                         </small>
-                                        ${group.isCreator ? `
-                                            <button class="btn btn-sm btn-outline-primary" onclick="manageGroup(${group.id})">
-                                                <i class="fas fa-cog"></i> Yönet
-                                            </button>
-                                        ` : ''}
+                                        <div>
+                                            ${group.isCreator ? `
+                                                <button class="btn btn-sm btn-outline-primary" onclick="manageGroup(${group.id})">
+                                                    <i class="fas fa-cog"></i> Yönet
+                                                </button>
+                                            ` : `
+                                                <button class="btn btn-sm btn-outline-danger" onclick="leaveGroup(${group.id})">
+                                                    <i class="fas fa-sign-out-alt"></i> Ayrıl
+                                                </button>
+                                            `}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1672,74 +1991,111 @@
             // Bildirimleri kontrol et
             checkNotifications();
             notificationCheckInterval = setInterval(checkNotifications, 30000); // Her 30 saniyede bir kontrol et
+
+            // Carousel'i etkinleştir
+            const carousel = new bootstrap.Carousel(document.getElementById('bestRankContainer'), {
+                interval: 3000, // 3 saniyede bir otomatik geçiş
+                wrap: true     // Sondan başa dön
+            });
         });
 
         function manageGroup(groupId) {
             currentGroupId = groupId;
-            loadGroupMembers();
-            loadAvailableFriends();
-            manageGroupModal.show();
+            
+            // Grup detaylarını yükle
+            fetch(`/api/groups/${groupId}/details`)
+                .then(response => response.json())
+                .then(group => {
+                    // Grup adını ayarla
+                    document.getElementById('groupName').textContent = group.name;
+                    
+                    // Üyeleri yükle
+                    loadGroupMembers(groupId);
+                    loadAvailableFriends();
+                    
+                    // Modal'ı göster
+                    const modal = new bootstrap.Modal(document.getElementById('manageGroupModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                    showAlert('error', 'Grup detayları yüklenirken bir hata oluştu');
+                });
         }
 
-        function loadGroupMembers() {
-            $.get(`/api/groups/${currentGroupId}/members`, function(response) {
-                const membersList = $('#membersList');
-                membersList.empty();
-                
-                // Önce grup bilgilerini alalım
-                $.get(`/api/groups/${currentGroupId}`, function(group) {
-                    const currentUser = JSON.parse(localStorage.getItem('user'));
-                    const isCreator = group.creatorId === currentUser.id;
-                    const isAdmin = group.admins.some(admin => admin.id === currentUser.id);
+        function loadGroupMembers(groupId) {
+            if (!groupId) {
+                console.error('Grup ID tanımsız!');
+                return;
+            }
+
+            fetch(`/api/groups/${groupId}/members`)
+                .then(response => response.json())
+                .then(members => {
+                    const membersList = document.getElementById('membersList');
+                    membersList.innerHTML = '';
                     
-                    response.forEach(member => {
-                        let adminBadge = '';
+                    members.forEach(member => {
+                        const memberCard = document.createElement('div');
+                        memberCard.className = 'list-group-item member-card d-flex align-items-center';
+                        
+                        let memberHtml = `
+                            <img src="${member.profileImage || 'https://via.placeholder.com/40'}" 
+                                 alt="Profil" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                            <div>
+                                <h6 class="mb-0">${member.firstName} ${member.lastName}</h6>
+                                <div class="badges">
+                        `;
                         
                         if (member.isCreator) {
-                            adminBadge = '<span class="badge bg-primary">Kurucu</span>';
-                        } else if (member.isAdmin) {
-                            adminBadge = `
-                                <span class="badge bg-info admin-badge" ${isCreator ? 'title="Admin yetkisini kaldırmak için tıklayın"' : ''}>
-                                    Admin
-                                    ${isCreator ? `<i class="fas fa-times remove-admin" onclick="removeAdmin(${member.id})"></i>` : ''}
-                                </span>`;
+                            memberHtml += '<span class="badge bg-primary me-1">Kurucu</span>';
+                        }
+                        if (member.isAdmin) {
+                            memberHtml += '<span class="badge bg-info me-1">Yönetici</span>';
                         }
                         
-                        let removeButton = '';
-                        if (!member.isCreator && (isCreator || (isAdmin && member.id !== currentUser.id))) {
-                            removeButton = `
-                                <button class="btn btn-link text-danger" onclick="removeMember(${member.id})" title="Üyeyi Çıkar">
-                                    <i class="fas fa-trash"></i>
-                                </button>`;
-                        }
-                        
-                        let makeAdminButton = '';
-                        if (!member.isCreator && !member.isAdmin && isCreator) {
-                            makeAdminButton = `
-                                <button class="btn btn-link text-info" onclick="makeAdmin(${member.id})" title="Admin Yap">
-                                    <i class="fas fa-user-shield"></i>
-                                </button>`;
-                        }
-                        
-                        membersList.append(`
-                            <div class="list-group-item member-card">
-                                <div class="d-flex align-items-center">
-                                    <img src="${member.profileImage || 'https://via.placeholder.com/40'}" 
-                                        class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <div>
-                                        <h6 class="mb-0">${member.firstName} ${member.lastName}</h6>
-                                        ${adminBadge}
-                                    </div>
-                                    <div class="member-actions">
-                                        ${makeAdminButton}
-                                        ${removeButton}
-                                    </div>
+                        memberHtml += `
                                 </div>
                             </div>
-                        `);
+                            <div class="member-actions ms-auto">
+                        `;
+                        
+                        if (!member.isCreator) {
+                            if (member.isAdmin) {
+                                memberHtml += `
+                                    <button class="btn btn-sm btn-outline-warning" 
+                                            onclick="removeAdmin(${groupId}, ${member.id})">
+                                        Yöneticiyi Kaldır
+                                    </button>
+                                `;
+                            } else {
+                                memberHtml += `
+                                    <button class="btn btn-sm btn-outline-info" 
+                                            onclick="makeAdmin(${groupId}, ${member.id})">
+                                        Yönetici Yap
+                                    </button>
+                                `;
+                            }
+                            memberHtml += `
+                                <button class="btn btn-sm btn-outline-danger" 
+                                        onclick="removeMember(${groupId}, ${member.id})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            `;
+                        }
+                        
+                        memberHtml += `
+                            </div>
+                        `;
+                        
+                        memberCard.innerHTML = memberHtml;
+                        membersList.appendChild(memberCard);
                     });
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                    showAlert('error', 'Üyeler yüklenirken bir hata oluştu');
                 });
-            });
         }
 
         function loadAvailableFriends() {
@@ -1805,66 +2161,1128 @@
             });
         }
 
-        function makeAdmin(userId) {
-            $.post(`/api/groups/${currentGroupId}/admins/add?userId=${userId}`, function(response) {
-                alert('Yönetici rolü verildi!');
+        // Admin yapma fonksiyonu
+        function makeAdmin(groupId, userId) {
+            fetch(`/api/groups/${groupId}/admins/add?userId=${userId}`, {
+                method: 'POST'
+            })
+            .then(response => response.text())
+            .then(result => {
+                showAlert('success', 'Kullanıcı admin yapıldı');
+                loadGroupMembers(groupId); // loadGroupDetails yerine loadGroupMembers kullan
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                showAlert('error', 'Admin yapılırken bir hata oluştu');
+            });
+        }
+
+        // Admin kaldırma fonksiyonu
+        function removeAdmin(groupId, userId) {
+            fetch(`/api/groups/${groupId}/admins/${userId}?userId=${JSON.parse(localStorage.getItem('user')).id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.text())
+            .then(result => {
+                showAlert('success', 'Admin yetkisi kaldırıldı');
+                loadGroupMembers(groupId); // loadGroupDetails yerine loadGroupMembers kullan
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                showAlert('error', 'Admin yetkisi kaldırılırken bir hata oluştu');
+            });
+        }
+
+        // Üye kaldırma fonksiyonu
+        function removeMember(groupId, userId) {
+            if (!confirm('Bu üyeyi gruptan çıkarmak istediğinize emin misiniz?')) return;
+
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            fetch(`/api/groups/${groupId}/members/${userId}?userId=${currentUser.id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.text())
+            .then(result => {
+                showAlert('success', 'Üye gruptan çıkarıldı');
+                loadGroupMembers(groupId); // loadGroupDetails yerine loadGroupMembers kullan
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                showAlert('error', 'Üye çıkarılırken bir hata oluştu');
+            });
+        }
+
+
+
+        function showGroupDetails(groupId) {
+            currentGroupId = groupId;
+            
+            // Grup detayları bölümünü göster
+            document.getElementById('groupDetails').style.display = 'block';
+            
+            // Grup detaylarını ve üyeleri yükle
+            fetch(`/api/groups/${groupId}`)
+                .then(response => response.json())
+                .then(group => {
+                    document.getElementById('groupName').textContent = group.name;
+                    
+                    // Üyeleri listele
+                    loadGroupMembersList(group);
+                    
+                    // Harcama bölümünü göster
+                    document.getElementById('expensesSection').style.display = 'block';
+                    loadGroupExpenses(groupId);
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                    showAlert('error', 'Grup detayları yüklenirken bir hata oluştu');
+                });
+        }
+
+        function loadGroupMembersList(group) {
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            const membersList = document.getElementById('membersList');
+            membersList.innerHTML = '';
+            
+            const isCreator = group.creatorId === parseInt(currentUser.id);
+            const isAdmin = group.admins.some(admin => admin.id === parseInt(currentUser.id));
+
+            group.members.forEach(member => {
+                const isCreatorBadge = member.isCreator ? 
+                    '<span class="badge bg-primary ms-2">Kurucu</span>' : '';
+                
+                const isAdminBadge = member.isAdmin ? 
+                    `<span class="badge bg-info ms-2 admin-badge" ${isCreator ? 'style="cursor: pointer;" title="Admin yetkisini kaldırmak için tıklayın"' : ''}>
+                        Admin
+                        ${isCreator ? `<i class="fas fa-times remove-admin" onclick="removeAdmin(${member.id})"></i>` : ''}
+                    </span>` : '';
+
+                const actionButtons = !member.isCreator && (isCreator || (isAdmin && member.id !== currentUser.id)) ? 
+                    `<div class="member-actions">
+                        ${!member.isAdmin && isCreator ? 
+                            `<button class="btn btn-link text-info" onclick="makeAdmin(${member.id})" title="Admin Yap">
+                                <i class="fas fa-user-shield"></i>
+                            </button>` : ''
+                        }
+                        <button class="btn btn-link text-danger" onclick="removeMember(${member.id})" title="Üyeyi Çıkar">
+                            <i class="fas fa-user-minus"></i>
+                        </button>
+                    </div>` : '';
+
+                membersList.innerHTML += `
+                    <div class="list-group-item member-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <img src="${member.profileImage || 'https://via.placeholder.com/40'}" 
+                                    class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                <div>
+                                    <h6 class="mb-0">${member.firstName} ${member.lastName}</h6>
+                                    ${isCreatorBadge}
+                                    ${isAdminBadge}
+                                </div>
+                            </div>
+                            ${actionButtons}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function loadGroupExpenses(groupId) {
+            fetch(`/api/expenses/group/${groupId}`)
+                .then(response => response.json())
+                .then(expenses => {
+                    const tbody = document.getElementById('expensesTableBody');
+                    tbody.innerHTML = '';
+                    
+                    // Toplam harcamayı hesapla
+                    const totalAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+                    document.getElementById('groupTotalExpense').textContent = totalAmount.toFixed(2);
+                    
+                    expenses.forEach(expense => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${new Date(expense.createdAt).toLocaleDateString()}</td>
+                            <td>${expense.description}</td>
+                            <td>${expense.amount.toFixed(2)} TL</td>
+                            <td>
+                                <img src="${expense.user.profileImage || 'https://via.placeholder.com/30'}" 
+                                    class="rounded-circle me-2" style="width: 30px; height: 30px;">
+                                ${expense.user.firstName} ${expense.user.lastName}
+                            </td>
+                            ${expense.user.id === JSON.parse(localStorage.getItem('user')).id ? 
+                                `<td>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteExpense(${expense.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>` : '<td></td>'}
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                    showAlert('error', 'Harcamalar yüklenirken bir hata oluştu');
+                });
+        }
+
+        function showAddExpenseModal() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            fetch(`/api/groups/user/${user.id}`)
+                .then(response => response.json())
+                .then(groups => {
+                    const groupContainer = document.getElementById('expenseGroup');
+                    groupContainer.innerHTML = '';
+                    groups.forEach(group => {
+                        groupContainer.innerHTML += `
+                            <div class="list-group-item">
+                                <div class="form-check">
+                                    <input class="form-check-input group-checkbox" type="checkbox" 
+                                           id="group${group.id}" value="${group.id}" onchange="handleGroupSelection()">
+                                    <label class="form-check-label" for="group${group.id}">
+                                        ${group.name}
+                                    </label>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // Form ve üye seçimini sıfırla
+                    document.getElementById('expenseForm').reset();
+                    
+                    // Modal'ı göster
+                    const modal = new bootstrap.Modal(document.getElementById('addExpenseModal'));
+                    modal.show();
+                });
+        }
+
+        function handleGroupSelection() {
+            const selectedGroups = document.querySelectorAll('.group-checkbox:checked');
+            const splitExpenseCheckbox = document.getElementById('splitExpense');
+            
+            // Birden fazla grup seçiliyse bölüştürme seçeneğini devre dışı bırak
+            if (selectedGroups.length > 1) {
+                splitExpenseCheckbox.checked = false;
+                splitExpenseCheckbox.disabled = true;
+                splitExpenseCheckbox.parentElement.title = "Birden fazla grup seçildiğinde bölüştürme yapılamaz";
+            } else {
+                splitExpenseCheckbox.disabled = false;
+                splitExpenseCheckbox.parentElement.title = "";
+            }
+        }
+
+        function createExpense() {
+            const selectedGroups = Array.from(document.querySelectorAll('.group-checkbox:checked'))
+                .map(checkbox => parseInt(checkbox.value));
+
+            if (selectedGroups.length === 0) {
+                showAlert('error', 'Lütfen en az bir grup seçin!');
+                return;
+            }
+
+            const splitExpense = document.getElementById('splitExpense').checked;
+
+            const expenseData = {
+                groupIds: selectedGroups,
+                userId: JSON.parse(localStorage.getItem('user')).id,
+                category: document.getElementById('expenseCategory').value,
+                description: document.getElementById('expenseDescription').value,
+                amount: document.getElementById('expenseAmount').value,
+                split: splitExpense
+            };
+
+            fetch('/api/expenses/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(expenseData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Harcama eklenirken bir hata oluştu');
+                }
+                return response.text();
+            })
+            .then(result => {
+                bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
+                document.getElementById('expenseForm').reset();
+                loadUserExpenses();
+                showAlert('success', result);
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                showAlert('error', error.message);
+            });
+        }
+
+        function loadUserExpenses() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) return;
+            
+            fetch(`/api/expenses/user/${user.id}`)
+                .then(response => response.json())
+                .then(expenses => {
+                    const tbody = document.getElementById('personalExpensesTable');
+                    if (!tbody) return;
+                    
+                    tbody.innerHTML = '';
+                    
+                    // Harcamaları saniye ve tutara göre grupla
+                    const uniqueExpenses = new Map();
+                    expenses.forEach(expense => {
+                        const date = new Date(expense.createdAt);
+                        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}_${expense.amount}`;
+                        
+                        if (!uniqueExpenses.has(key) && expense.visibleInList) {
+                            uniqueExpenses.set(key, expense);
+                        }
+                    });
+
+                    // Tarihe göre sırala (yeniden eskiye)
+                    const sortedExpenses = Array.from(uniqueExpenses.values())
+                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                    // Toplam harcamayı sadece görünür ve benzersiz harcamalardan hesapla
+                    const totalExpense = sortedExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+                    
+                    const totalExpenseElement = document.getElementById('totalExpenseAmount');
+                    const overviewTotalExpenseElement = document.getElementById('overviewTotalExpense');
+                    
+                    if (totalExpenseElement) {
+                        totalExpenseElement.textContent = totalExpense.toFixed(2);
+                    }
+                    if (overviewTotalExpenseElement) {
+                        overviewTotalExpenseElement.textContent = totalExpense.toFixed(2) + ' TL';
+                    }
+                    
+                    // Grafik verilerini hazırla
+                    const categoryData = {};
+                    const monthlyData = {};
+                    
+                    // Harcamaları listele
+                    sortedExpenses.forEach(expense => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${new Date(expense.createdAt).toLocaleDateString()}</td>
+                            <td>${expense.description || '-'}</td>
+                            <td>${expense.category}</td>
+                            <td>${expense.amount.toFixed(2)} TL</td>
+                            <td>${expense.group ? expense.group.name : 'Grup Silinmiş'}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteExpense(${expense.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+
+                        // Kategori verilerini topla
+                        categoryData[expense.category] = (categoryData[expense.category] || 0) + expense.amount;
+
+                        // Aylık verileri topla
+                        const month = new Date(expense.createdAt).toLocaleString('tr-TR', { month: 'long' });
+                        monthlyData[month] = (monthlyData[month] || 0) + expense.amount;
+                    });
+
+                    // Grafikleri güncelle
+                    updateCharts(categoryData, monthlyData);
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                    showAlert('error', 'Harcamalar yüklenirken bir hata oluştu');
+                });
+        }
+
+        function updateCharts(categoryData, monthlyData) {
+            // Eğer önceki grafikler varsa yok et
+            if (pieChart) pieChart.destroy();
+            if (barChart) barChart.destroy();
+
+            // Pasta grafik
+            const ctxPie = document.getElementById('categoryPieChart').getContext('2d');
+            pieChart = new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#C9CBCF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Kategorilere Göre Harcamalar'
+                        }
+                    }
+                }
+            });
+
+            // Çubuk grafik
+            const ctxBar = document.getElementById('monthlyBarChart').getContext('2d');
+            barChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(monthlyData),
+                    datasets: [{
+                        label: 'Aylık Harcamalar',
+                        data: Object.values(monthlyData),
+                        backgroundColor: '#36A2EB'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Aylık Harcama Dağılımı'
+                        }
+                    }
+                }
+            });
+        }
+
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.content-card').insertAdjacentElement('afterbegin', alertDiv);
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+
+        function deleteExpense(expenseId) {
+            if (!confirm('Bu harcamayı silmek istediğinize emin misiniz?')) {
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            fetch(`/api/expenses/${expenseId}?userId=${user.id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text || 'Silme işlemi başarısız oldu');
+                    });
+                }
+                return response.text();
+            })
+            .then(result => {
+                showAlert('success', 'Harcama başarıyla silindi');
+                loadUserExpenses(); // Harcama listesini yenile
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                showAlert('error', error.message);
+            });
+        }
+
+        function toggleMemberSelection() {
+            const memberSelectionDiv = document.getElementById('memberSelectionDiv');
+            const splitExpense = document.getElementById('splitExpense');
+            
+            if (splitExpense.checked) {
+                memberSelectionDiv.style.display = 'block';
                 loadGroupMembers();
-            }).fail(function(xhr) {
-                alert('Hata: ' + xhr.responseText);
-            });
+            } else {
+                memberSelectionDiv.style.display = 'none';
+            }
         }
 
-        function removeAdmin(userId) {
-            if (!confirm('Yönetici rolünü kaldırmak istediğinize emin misiniz?')) return;
+        function loadGroupMembers() {
+            const expenseGroup = document.getElementById('expenseGroup');
+            const selectedGroups = Array.from(expenseGroup.selectedOptions).map(option => parseInt(option.value));
             
-            const user = JSON.parse(localStorage.getItem('user'));
-            $.ajax({
-                url: `/api/groups/${currentGroupId}/admins/${userId}?userId=${user.id}`,
-                type: 'DELETE',
-                success: function(response) {
-                    alert('Yönetici rolü kaldırıldı!');
-                    loadGroupMembers();
-                },
-                error: function(xhr) {
-                    alert('Hata: ' + xhr.responseText);
-                }
+            if (selectedGroups.length === 0) {
+                showAlert('error', 'Lütfen önce grup seçin!');
+                return;
+            }
+
+            const membersList = document.getElementById('membersList');
+            membersList.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Üyeler yükleniyor...</div>';
+
+            // Seçili tüm grupların üyelerini al
+            Promise.all(selectedGroups.map(groupId => 
+                fetch(`/api/groups/${groupId}/members`).then(response => response.json())
+            ))
+            .then(groupsMembers => {
+                // Tüm grupların üyelerini birleştir ve tekrar edenleri kaldır
+                const allMembers = [...new Map(
+                    groupsMembers.flat().map(member => [member.id, member])
+                ).values()];
+
+                membersList.innerHTML = '';
+                allMembers.forEach(member => {
+                    membersList.innerHTML += `
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selectedMembers" 
+                                   value="${member.id}" id="member${member.id}">
+                            <label class="form-check-label" for="member${member.id}">
+                                ${member.firstName} ${member.lastName}
+                            </label>
+                        </div>
+                    `;
+                });
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                membersList.innerHTML = '<div class="alert alert-danger">Üyeler yüklenirken bir hata oluştu</div>';
             });
         }
 
-        function removeMember(userId) {
-            if (!confirm('Üyeyi gruptan çıkarmak istediğinize emin misiniz?')) return;
+        // Yarışma fonksiyonları
+        function loadCompetitions(groupId) {
+            fetch(`/api/competitions/group/${groupId}`)
+                .then(response => response.json())
+                .then(competitions => {
+                    const container = document.getElementById('competitionsContainer');
+                    
+                    // Grup başlığını ekle
+                    const groupSection = document.createElement('div');
+                    groupSection.className = 'mb-4';
+                    groupSection.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5>Grup: ${competitions.length > 0 ? competitions[0].group.name : 'Grup'}</h5>
+                            <button class="btn btn-primary btn-sm" onclick="showCreateCompetitionModal(${groupId})">
+                                <i class="fas fa-plus"></i> Yeni Yarışma
+                            </button>
+                        </div>
+                        <div class="row" id="competitions-group-${groupId}">
+                        </div>
+                    `;
+                    container.appendChild(groupSection);
+
+                    const competitionsContainer = document.getElementById(`competitions-group-${groupId}`);
+                    competitions.forEach(competition => {
+                        const startDate = new Date(competition.startDate);
+                        const endDate = new Date(competition.endDate);
+                        const isActive = competition.active;
+                        
+                        const card = document.createElement('div');
+                        card.className = 'col-md-6 col-lg-4 mb-4';
+                        card.innerHTML = `
+                            <div class="card h-100 ${isActive ? 'border-success' : ''}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${competition.title}</h5>
+                                    <p class="card-text">
+                                        <span class="badge bg-${competition.type === 'WEEKLY' ? 'primary' : 'info'}">
+                                            ${competition.type === 'WEEKLY' ? 'Haftalık' : 'Aylık'}
+                                        </span>
+                                        ${isActive ? '<span class="badge bg-success ms-2">Aktif</span>' : ''}
+                                    </p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            Başlangıç: ${startDate.toLocaleDateString('tr-TR')}<br>
+                                            Bitiş: ${endDate.toLocaleDateString('tr-TR')}
+                                        </small>
+                                    </p>
+                                    <button class="btn btn-outline-primary w-100" 
+                                            onclick="showCompetitionResults(${competition.id})">
+                                        Sonuçları Görüntüle
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        competitionsContainer.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('Yarışmalar yüklenirken hata:', error);
+                    showAlert('error', 'Yarışmalar yüklenirken bir hata oluştu');
+                });
+        }
+
+        function showCompetitionDetails(competitionId) {
+            fetch(`/api/competitions/${competitionId}/results`)
+                .then(response => response.json())
+                .then(results => {
+                    const tbody = document.getElementById('leaderboardBody');
+                    tbody.innerHTML = '';
+
+                    results.forEach(result => {
+                        const row = `
+                            <tr class="${result.rank === 1 ? 'table-success' : ''}">
+                                <td>
+                                    ${result.rank === 1 ? '<i class="fas fa-crown text-warning"></i> ' : ''}
+                                    ${result.rank}
+                                </td>
+                                <td>
+                                    <img src="${result.user.profileImage || 'https://via.placeholder.com/30'}" 
+                                        class="rounded-circle me-2" style="width: 30px; height: 30px;">
+                                    ${result.user.firstName} ${result.user.lastName}
+                                </td>
+                                <td>${result.totalExpense.toFixed(2)} TL</td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
+
+                    const modal = new bootstrap.Modal(document.getElementById('competitionDetailModal'));
+                    modal.show();
+                });
+        }
+
+        // Grup üyelerini listele
+        function loadGroupMembers(groupId) {
+            if (!groupId) {
+                console.error('Grup ID tanımsız!');
+                return;
+            }
+
+            fetch(`/api/groups/${groupId}/members`)
+                .then(response => response.json())
+                .then(members => {
+                    const membersList = document.getElementById('membersList');
+                    membersList.innerHTML = '';
+                    
+                    members.forEach(member => {
+                        const memberCard = document.createElement('div');
+                        memberCard.className = 'list-group-item member-card d-flex align-items-center';
+                        
+                        let memberHtml = `
+                            <img src="${member.profileImage || 'https://via.placeholder.com/40'}" 
+                                 alt="Profil" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                            <div>
+                                <h6 class="mb-0">${member.firstName} ${member.lastName}</h6>
+                                <div class="badges">
+                        `;
+                        
+                        if (member.isCreator) {
+                            memberHtml += '<span class="badge bg-primary me-1">Kurucu</span>';
+                        }
+                        if (member.isAdmin) {
+                            memberHtml += '<span class="badge bg-info me-1">Yönetici</span>';
+                        }
+                        
+                        memberHtml += `
+                                </div>
+                            </div>
+                            <div class="member-actions ms-auto">
+                        `;
+                        
+                        if (!member.isCreator) {
+                            if (member.isAdmin) {
+                                memberHtml += `
+                                    <button class="btn btn-sm btn-outline-warning" 
+                                            onclick="removeAdmin(${groupId}, ${member.id})">
+                                        Yöneticiyi Kaldır
+                                    </button>
+                                `;
+                            } else {
+                                memberHtml += `
+                                    <button class="btn btn-sm btn-outline-info" 
+                                            onclick="makeAdmin(${groupId}, ${member.id})">
+                                        Yönetici Yap
+                                    </button>
+                                `;
+                            }
+                            memberHtml += `
+                                <button class="btn btn-sm btn-outline-danger" 
+                                        onclick="removeMember(${groupId}, ${member.id})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            `;
+                        }
+                        
+                        memberHtml += `
+                            </div>
+                        `;
+                        
+                        memberCard.innerHTML = memberHtml;
+                        membersList.appendChild(memberCard);
+                    });
+                })
+                .catch(error => {
+                    showAlert('error', 'Üyeler yüklenirken bir hata oluştu: ' + error.message);
+                });
+        }
+
+        // Yarışmaları listele
+        function loadCompetitions(groupId) {
+            fetch(`/api/competitions/group/${groupId}`)
+                .then(response => response.json())
+                .then(competitions => {
+                    const container = document.getElementById('competitionsContainer');
+                    
+                    // Grup başlığını ekle
+                    const groupSection = document.createElement('div');
+                    groupSection.className = 'mb-4';
+                    groupSection.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5>Grup: ${competitions.length > 0 ? competitions[0].group.name : 'Grup'}</h5>
+                            <button class="btn btn-primary btn-sm" onclick="showCreateCompetitionModal(${groupId})">
+                                <i class="fas fa-plus"></i> Yeni Yarışma
+                            </button>
+                        </div>
+                        <div class="row" id="competitions-group-${groupId}">
+                        </div>
+                    `;
+                    container.appendChild(groupSection);
+
+                    const competitionsContainer = document.getElementById(`competitions-group-${groupId}`);
+                    competitions.forEach(competition => {
+                        const startDate = new Date(competition.startDate);
+                        const endDate = new Date(competition.endDate);
+                        const isActive = competition.active;
+                        
+                        const card = document.createElement('div');
+                        card.className = 'col-md-6 col-lg-4 mb-4';
+                        card.innerHTML = `
+                            <div class="card h-100 ${isActive ? 'border-success' : ''}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${competition.title}</h5>
+                                    <p class="card-text">
+                                        <span class="badge bg-${competition.type === 'WEEKLY' ? 'primary' : 'info'}">
+                                            ${competition.type === 'WEEKLY' ? 'Haftalık' : 'Aylık'}
+                                        </span>
+                                        ${isActive ? '<span class="badge bg-success ms-2">Aktif</span>' : ''}
+                                    </p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            Başlangıç: ${startDate.toLocaleDateString('tr-TR')}<br>
+                                            Bitiş: ${endDate.toLocaleDateString('tr-TR')}
+                                        </small>
+                                    </p>
+                                    <button class="btn btn-outline-primary w-100" 
+                                            onclick="showCompetitionResults(${competition.id})">
+                                        Sonuçları Görüntüle
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        competitionsContainer.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('Yarışmalar yüklenirken hata:', error);
+                    showAlert('error', 'Yarışmalar yüklenirken bir hata oluştu');
+                });
+        }
+
+        // Yarışma sonuçlarını göster
+        function showCompetitionResults(competitionId) {
+            fetch(`/api/competitions/${competitionId}/results`)
+                .then(response => response.json())
+                .then(results => {
+                    // Sonuçları modal içinde göster
+                    const modal = new bootstrap.Modal(document.getElementById('competitionResultsModal'));
+                    const resultsList = document.getElementById('competitionResultsList');
+                    resultsList.innerHTML = '';
+                    
+                    results.forEach(result => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                        resultItem.innerHTML = `
+                            <div>
+                                <span class="badge bg-${result.rank === 1 ? 'success' : 'secondary'} me-2">${result.rank}</span>
+                                ${result.username}
+                            </div>
+                            <span class="badge bg-primary">${result.totalExpense.toFixed(2)} ₺</span>
+                        `;
+                        resultsList.appendChild(resultItem);
+                    });
+                    
+                    modal.show();
+                })
+                .catch(error => {
+                    showAlert('error', 'Sonuçlar yüklenirken bir hata oluştu: ' + error.message);
+                });
+        }
+
+        // Yeni yarışma oluştur
+        function createCompetition() {
+            const title = document.getElementById('competitionTitle').value;
+            const type = document.getElementById('competitionType').value;
+            const groupId = currentGroupId; // Bu değişken grup seçildiğinde set edilmeli
             
-            const user = JSON.parse(localStorage.getItem('user'));
-            $.ajax({
-                url: `/api/groups/${currentGroupId}/members/${userId}?userId=${user.id}`,
-                type: 'DELETE',
-                success: function(response) {
-                    alert('Üye gruptan çıkarıldı!');
-                    loadGroupMembers();
-                    loadAvailableFriends();
+            if (!title || !type || !groupId) {
+                showAlert('error', 'Lütfen tüm alanları doldurun!');
+                return;
+            }
+            
+            fetch('/api/competitions/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                error: function(xhr) {
-                    alert('Hata: ' + xhr.responseText);
+                body: `groupId=${groupId}&title=${encodeURIComponent(title)}&type=${type}`
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    throw new Error(result.error);
                 }
+                showAlert('success', 'Yarışma başarıyla oluşturuldu!');
+                bootstrap.Modal.getInstance(document.getElementById('createCompetitionModal')).hide();
+                loadCompetitions(groupId);
+            })
+            .catch(error => {
+                showAlert('error', 'Yarışma oluşturulurken bir hata oluştu: ' + error.message);
             });
         }
 
+        // Kullanıcının gruplarını yükle
+        function loadUserGroups() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            return fetch(`/api/groups/user/${user.id}`)
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Gruplar yüklenirken hata:', error);
+                    return [];
+                });
+        }
+
+        // Grup silme fonksiyonunu güncelle
         function deleteGroup() {
-            if (!confirm('Grubu silmek istediğinize emin misiniz? Bu işlem geri alınamaz!')) return;
-            
+            if (!currentGroupId || !confirm('Bu grubu silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')) return;
+
             const user = JSON.parse(localStorage.getItem('user'));
-            $.ajax({
-                url: `/api/groups/${currentGroupId}?userId=${user.id}`,
-                type: 'DELETE',
-                success: function(response) {
-                    alert('Grup silindi!');
-                    manageGroupModal.hide();
-                    loadGroups();
-                },
-                error: function(xhr) {
-                    alert('Hata: ' + xhr.responseText);
+            
+            fetch(`/api/groups/${currentGroupId}?userId=${user.id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Grup silinirken bir hata oluştu');
                 }
+                return response.text();
+            })
+            .then(result => {
+                showAlert('success', 'Grup başarıyla silindi');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('manageGroupModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                loadGroups(); // Grup listesini yenile
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                showAlert('error', 'Grup silinirken bir hata oluştu');
             });
+        }
+
+        // Gruptan ayrılma fonksiyonu
+        function leaveGroup(groupId) {
+            if (!confirm('Bu gruptan ayrılmak istediğinize emin misiniz?')) return;
+
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            fetch(`/api/groups/${groupId}/leave?userId=${user.id}`, {
+                method: 'POST'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Gruptan ayrılırken bir hata oluştu');
+                }
+                return response.text();
+            })
+            .then(result => {
+                showAlert('success', 'Gruptan başarıyla ayrıldınız');
+                loadGroups(); // Grup listesini yenile
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                showAlert('error', 'Gruptan ayrılırken bir hata oluştu');
+            });
+        }
+        
+
+        // Harcama sıralaması fonksiyonunu güncelle
+        function loadExpenseRanking(groupId, period, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</div>';
+
+            const endDate = new Date();
+            const startDate = new Date();
+            
+            if (period === 'WEEKLY') {
+                startDate.setDate(endDate.getDate() - 7);
+            } else {
+                startDate.setMonth(endDate.getMonth() - 1);
+            }
+
+            fetch(`/api/expenses/group-ranking?groupId=${groupId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&period=${period}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Sıralama yüklenirken bir hata oluştu');
+                    }
+                    return response.json();
+                })
+                .then(results => {
+                    if (!results || results.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-receipt fa-3x mb-3"></i>
+                                <p>Henüz harcama yapılmamış</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Sonuçları harcama miktarına göre sırala (çok harcayandan az harcayana)
+                    const sortedResults = [...results].sort((a, b) => b.totalExpense - a.totalExpense);
+
+                    // Toplam grup harcamasını hesapla
+                    const totalGroupExpense = sortedResults.reduce((sum, result) => sum + result.totalExpense, 0);
+
+                    let html = `
+                        <div class="alert alert-info mb-3">
+                            <h6 class="mb-0">Grup Toplam Harcama: ${totalGroupExpense.toFixed(2)} TL</h6>
+                        </div>
+                        <div class="leaderboard">
+                    `;
+
+                    sortedResults.forEach((result, index) => {
+                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                        const bgClass = index === 0 ? 'bg-success' : 
+                                      index === 1 ? 'bg-info' : 
+                                      index === 2 ? 'bg-warning' : 'bg-light';
+                        const user = result.user;
+                        
+                        html += `
+                            <div class="leaderboard-item d-flex align-items-center p-2 rounded mb-2 ${bgClass} ${index > 2 ? 'text-dark' : 'text-white'}">
+                                <span class="position-indicator me-3">${medal || (index + 1)}</span>
+                                <div class="user-info flex-grow-1">
+                                    <img src="${user.profileImage || 'https://via.placeholder.com/30'}" alt="Profil">
+                                    <strong>${user.firstName} ${user.lastName}</strong>
+                                </div>
+                                <div class="expense-amount">
+                                    ${result.totalExpense.toFixed(2)} TL
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += '</div>';
+                    container.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Sıralama yüklenirken hata:', error);
+                    container.innerHTML = `
+                        <div class="alert alert-danger">
+                            Sıralama yüklenirken bir hata oluştu
+                        </div>
+                    `;
+                });
+        }
+
+        // Yarışmalar için yeni fonksiyonlar
+        function loadGroupCompetitions() {
+            const groupId = document.getElementById('competitionGroupSelect').value;
+            if (!groupId) return;
+
+            // Haftalık sıralamayı yükle
+            loadExpenseRanking(groupId, 'WEEKLY', 'weeklyCompetition');
+            
+            // Aylık sıralamayı yükle
+            loadExpenseRanking(groupId, 'MONTHLY', 'monthlyCompetition');
+        }
+
+        // Sayfa yüklendiğinde grupları yükle
+        function initializeCompetitionsPage() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            fetch(`/api/groups/user/${user.id}`)
+                .then(response => response.json())
+                .then(groups => {
+                    const select = document.getElementById('competitionGroupSelect');
+                    select.innerHTML = '<option value="">Grup seçin...</option>';
+                    groups.forEach(group => {
+                        select.innerHTML += `<option value="${group.id}">${group.name}</option>`;
+                    });
+                })
+                .catch(error => {
+                    console.error('Gruplar yüklenirken hata:', error);
+                    showAlert('error', 'Gruplar yüklenirken bir hata oluştu');
+                });
+        }
+
+        // Harcama sıralaması fonksiyonu
+        function loadGroupExpenseRanking() {
+            const groupId = document.getElementById('competitionGroupSelect').value;
+            if (!groupId) return;
+
+            const container = document.getElementById('groupRanking');
+            container.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</div>';
+
+            // Önce grup üyelerini al
+            fetch(`/api/groups/${groupId}/members`)
+                .then(response => response.json())
+                .then(members => {
+                    // Her üye için harcamaları al
+                    Promise.all(members.map(member => 
+                        fetch(`/api/expenses/user/${member.id}`)
+                            .then(response => response.json())
+                            .then(expenses => ({
+                                user: member,
+                                totalExpense: expenses.reduce((sum, expense) => 
+                                    expense.group.id === parseInt(groupId) ? sum + expense.amount : sum, 0)
+                            }))
+                    ))
+                    .then(results => {
+                        // Harcamalara göre sırala (az harcayandan çok harcayana)
+                        results.sort((a, b) => a.totalExpense - b.totalExpense);
+
+                        // Toplam grup harcamasını hesapla
+                        const totalGroupExpense = results.reduce((sum, result) => sum + result.totalExpense, 0);
+
+                        let html = `
+                            <div class="alert alert-info mb-3">
+                                <h6 class="mb-0">Grup Toplam Harcama: ${totalGroupExpense.toFixed(2)} TL</h6>
+                            </div>
+                            <div class="list-group">
+                        `;
+
+                        results.forEach((result, index) => {
+                            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                            const bgClass = index === 0 ? 'bg-success' : 
+                                          index === 1 ? 'bg-info' : 
+                                          index === 2 ? 'bg-warning' : 'bg-light';
+
+                            html += `
+                                <div class="list-group-item d-flex align-items-center ${bgClass} ${index > 2 ? 'text-dark' : 'text-white'}">
+                                    <span class="me-3">${medal || (index + 1)}</span>
+                                    <div class="d-flex align-items-center flex-grow-1">
+                                        <img src="${result.user.profileImage || 'https://via.placeholder.com/30'}" 
+                                             class="rounded-circle me-2" style="width: 30px; height: 30px;">
+                                        <strong>${result.user.firstName} ${result.user.lastName}</strong>
+                                    </div>
+                                    <div class="fw-bold">
+                                        ${result.totalExpense.toFixed(2)} TL
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        html += '</div>';
+                        container.innerHTML = html;
+                    });
+                })
+                .catch(error => {
+                    console.error('Hata:', error);
+                    container.innerHTML = `
+                        <div class="alert alert-danger">
+                            Sıralama yüklenirken bir hata oluştu
+                        </div>
+                    `;
+                });
+        }
+
+        // Sayfa yüklendiğinde grupları yükle
+        function initializeCompetitionsPage() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            fetch(`/api/groups/user/${user.id}`)
+                .then(response => response.json())
+                .then(groups => {
+                    const select = document.getElementById('competitionGroupSelect');
+                    select.innerHTML = '<option value="">Grup seçin...</option>';
+                    groups.forEach(group => {
+                        select.innerHTML += `<option value="${group.id}">${group.name}</option>`;
+                    });
+                })
+                .catch(error => {
+                    console.error('Gruplar yüklenirken hata:', error);
+                    showAlert('error', 'Gruplar yüklenirken bir hata oluştu');
+                });
+        }
+
+        function loadGroupExpenseRanking(groupId, period) {
+            const weeklyContainer = document.getElementById('weeklyRanking');
+            const monthlyContainer = document.getElementById('monthlyRanking');
+            
+            const container = period === 'WEEKLY' ? weeklyContainer : monthlyContainer;
+            if (!container) return; // Container yoksa işlemi sonlandır
+            
+            container.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</div>';
+
+            const endDate = new Date();
+            const startDate = new Date();
+            
+            if (period === 'WEEKLY') {
+                startDate.setDate(endDate.getDate() - 7);
+            } else {
+                startDate.setMonth(endDate.getMonth() - 1);
+            }
+
+            fetch(`/api/expenses/group-ranking?groupId=${groupId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&period=${period}`)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(text || 'Sıralama yüklenirken bir hata oluştu');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(results => {
+                    if (!results || results.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-receipt fa-3x mb-3"></i>
+                                <p>Henüz harcama yapılmamış</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Toplam grup harcamasını hesapla
+                    const totalGroupExpense = results.reduce((sum, result) => sum + result.totalExpense, 0);
+
+                    let html = `
+                        <div class="alert alert-info mb-3">
+                            <h6 class="mb-0">Grup Toplam Harcama: ${totalGroupExpense.toFixed(2)} TL</h6>
+                        </div>
+                        <div class="leaderboard">
+                    `;
+
+                    results.forEach((result, index) => {
+                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                        const bgClass = index === 0 ? 'rank-gold' : 
+                                      index === 1 ? 'rank-silver' : 
+                                      index === 2 ? 'rank-bronze' : 'bg-light';
+                        const user = result.user;
+                        
+                        html += `
+                            <div class="leaderboard-item d-flex align-items-center p-2 rounded mb-2 ${bgClass}">
+                                <span class="position-indicator me-3">${medal || (index + 1)}</span>
+                                <div class="user-info flex-grow-1">
+                                    <img src="${user.profileImage || 'https://via.placeholder.com/30'}" alt="Profil">
+                                    <strong>${user.firstName} ${user.lastName}</strong>
+                                </div>
+                                <div class="expense-amount">
+                                    ${result.totalExpense.toFixed(2)} TL
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += '</div>';
+                    container.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Sıralama yüklenirken hata:', error);
+                    container.innerHTML = `
+                        <div class="alert alert-danger">
+                            ${error.message || 'Sıralama yüklenirken bir hata oluştu'}
+                        </div>
+                    `;
+                });
+        }
+
+        function loadGroupRankings() {
+            const groupId = document.getElementById('competitionGroupSelect').value;
+            if (!groupId) return;
+
+            loadGroupExpenseRanking(groupId, 'WEEKLY');
+            loadGroupExpenseRanking(groupId, 'MONTHLY');
         }
     </script>
 </body>
